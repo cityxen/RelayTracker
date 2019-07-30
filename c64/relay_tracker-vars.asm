@@ -5,11 +5,14 @@
 //////////////////////////////////////////////////////////////////////////
 
 // disk vars
-.const filename         = $4b8 // 15 bytes
-.const filename_color   = $d8b8
-.const filename_buffer  = $8000
-.const filename_cursor  = $8011
-.const drive            = $8013
+.var filename         = $4b8 // 16 bytes
+.var filename_color   = $d8b8
+.var filename_buffer  = $8000
+.var filename_buffer_end = $8011
+.var filename_cursor  = $8012
+.var filename_length  = $8013
+.var drive            = $8014
+.var filename_save    = $8020
 
 
 
