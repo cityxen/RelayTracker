@@ -74,15 +74,34 @@ check_f_hit:
 // N (New Data)
 check_n_hit:
     cmp #$4e
-    bne check_p_hit
+    bne check_colon_hit
     // TODO: New Data
     jmp mainloop
 //////////////////////////////////////////////////
-// P (Change Pattern)
-check_p_hit:
-    cmp #$50
+// COLON (Change Pattern DOWN)
+check_colon_hit:
+    cmp #58
+    bne check_semicolon_hit
+    ldx track_block_cursor
+    lda track_block,x
+    cmp #$00
+    beq check_colon_nope
+    dec track_block,x
+check_colon_nope:
+    jsr refresh_track_blocks
+    jmp mainloop
+//////////////////////////////////////////////////
+// SEMICOLON (Change Pattern UP)
+check_semicolon_hit:
+    cmp #59
     bne check_s_hit
-    // TODO: Change Pattern
+    ldx track_block_cursor
+    lda track_block,x
+    cmp #$ff
+    beq check_semicolon_nope
+    inc track_block,x
+check_semicolon_nope:
+    jsr refresh_track_blocks
     jmp mainloop
 //////////////////////////////////////////////////
 // S (Save File)
@@ -92,60 +111,112 @@ check_s_hit:
     jsr save_file
     jmp mainloop
 //////////////////////////////////////////////////
-// Set relays
+// 1 (Set Relay 1)
 check_1_hit:
     cmp #$31
     bne check_2_hit
     // TODO: Set Relay 1
     jmp mainloop
+//////////////////////////////////////////////////
+// 2 (Set Relay 2)
 check_2_hit:
     cmp #$32
     bne check_3_hit
     // TODO: Set Relay 2
     jmp mainloop
+//////////////////////////////////////////////////
+// 3 (Set Relay 3)
 check_3_hit:
     cmp #$33
     bne check_4_hit
     // TODO: Set Relay 3
     jmp mainloop
+//////////////////////////////////////////////////
+// 4 (Set Relay 4)
 check_4_hit:
     cmp #$34
     bne check_5_hit
     // TODO: Set Relay 4
     jmp mainloop
+//////////////////////////////////////////////////
+// 5 (Set Relay 5)
 check_5_hit:
     cmp #$35
     bne check_6_hit
     // TODO: Set Relay 5
     jmp mainloop
+//////////////////////////////////////////////////
+// 6 (Set Relay 6)
 check_6_hit:
     cmp #$36
     bne check_7_hit
     // TODO: Set Relay 6
     jmp mainloop
+//////////////////////////////////////////////////
+// 7 (Set Relay 7)
 check_7_hit:
     cmp #$37
     bne check_8_hit
     // TODO: Set Relay 7
     jmp mainloop
+//////////////////////////////////////////////////
+// 8 (Set Relay 8)
 check_8_hit:
     cmp #$38
-    bne check_f1_hit
+    bne check_minus_hit
     // TODO: Set Relay 8
+    jmp mainloop
+//////////////////////////////////////////////////
+// MINUS (Turn OFF all relays)
+check_minus_hit:
+    cmp #$2d
+    bne check_plus_hit
+    // TODO: Turn OFF all relays
+    jmp mainloop
+//////////////////////////////////////////////////
+// PLUS (Turn ON all relays)
+check_plus_hit:
+    cmp #$2b
+    bne check_star_hit
+    // TODO: Turn ON all relays
+    jmp mainloop
+//////////////////////////////////////////////////
+// STAR (Change Command)
+check_star_hit:
+    cmp #$38
+    bne check_equal_hit
+    // TODO: Change Command
+    jmp mainloop
+//////////////////////////////////////////////////
+// EQUAL (Change Command Value)
+check_equal_hit:
+    cmp #$38
+    bne check_f1_hit
+    // TODO: Change Command Value
     jmp mainloop
 //////////////////////////////////////////////////
 // F1 (Move Track Position UP)
 check_f1_hit:
     cmp #$85
     bne check_f3_hit
-    // TODO: Move Track Position UP
+    lda track_block_cursor
+    cmp #$ff
+    beq check_f1_hit_too_high
+    inc track_block_cursor
+    jsr refresh_track_blocks
+check_f1_hit_too_high:
     jmp mainloop
 //////////////////////////////////////////////////
-// F2 (Move Track Position DOWN)
+// F3 (Move Track Position DOWN)
 check_f3_hit:
     cmp #$86
     bne check_f5_hit
-    // TODO: Move Track Position DOWN
+    lda track_block_cursor
+    cmp #$00
+    beq check_f3_hit_too_low
+    dec track_block_cursor
+    jsr refresh_track_blocks
+check_f3_hit_too_low:
     jmp mainloop
 //////////////////////////////////////////////////
 // F5 (Page UP in current Pattern)
@@ -207,7 +278,11 @@ init_fn_loop:
     cpx #$10
     bne init_fn_loop
     ldx #00
-    stx filename_cursor    
+    stx filename_cursor
+
+    lda #track_block_cursor_init
+    sta track_block_cursor
+
     rts
 initial_filename:
 .text "filename.rtd"
@@ -253,7 +328,76 @@ ds_fn_2:
 
     jsr show_drive
 
+    jsr refresh_track_blocks
+
     rts
+
+////////////////////////////////////////////////////
+// refresh track blocks
+refresh_track_blocks:
+
+    lda #$20
+    ldx #$00
+rtb_loop1:
+    sta $400+3*40,x
+    sta $400+4*40,x
+    sta $400+5*40,x
+    inx
+    cpx #$07
+    bne rtb_loop1
+
+    ldx track_block_cursor
+    dex
+    cpx #$ff
+    beq rtb_skip_top
+    
+    lda #58
+    sta $400+3+3*40
+
+    txa
+    PrintHex(1,3)
+    ldx track_block_cursor
+    dex
+    lda track_block,x
+    PrintHex(4,3)
+
+rtb_skip_top:
+
+    lda #58
+    sta $400+3+4*40
+    
+    ldx track_block_cursor
+    txa
+    PrintHex(1,4)
+    ldx track_block_cursor
+    lda track_block,x
+    PrintHex(4,4)
+
+    lda #58
+    sta $400+3+5*40
+
+    ldx track_block_cursor
+    inx
+    txa
+    PrintHex(1,5)
+    ldx track_block_cursor
+    inx
+    lda track_block,x
+    PrintHex(4,5)
+
+    ldx #$00
+rtb_rev:
+    lda $400+4*40,x
+    adc #$80
+    sta $400+4*40,x
+    lda #$01
+    sta $d800+4*40,x
+    inx
+    cpx #$07
+    bne rtb_rev
+    rts
+
+
 
 ////////////////////////////////////////////////////
 // change filename
@@ -509,8 +653,8 @@ sv_labl5:
 
 .var tmpalow = $fb 
 .var tmpahigh = $fc 
-.var savefrom = $3000 
-.var saveto = $31ff 
+.var savefrom = $4000 
+.var saveto   = $9fff 
 
    lda #$0f
    ldx drive
