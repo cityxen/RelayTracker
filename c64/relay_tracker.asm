@@ -270,6 +270,7 @@ check_keys_done:
 initialize:
     lda #08
     sta drive
+    
     ldx #00
 init_fn_loop:
     lda initial_filename,x
@@ -327,9 +328,7 @@ ds_fn_2:
     bne ds_fn_loop
 
     jsr show_drive
-
     jsr refresh_track_blocks
-
     rts
 
 ////////////////////////////////////////////////////
