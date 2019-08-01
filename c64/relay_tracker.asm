@@ -4,17 +4,19 @@
 // (c)2019 CityXen
 //////////////////////////////////////////////////////////////////////////
 
+*=$2ff0 "constants"
 #import "../../Commodore64_Programming/include/Constants.asm"
 #import "../../Commodore64_Programming/include/Macros.asm"
 #import "relay_tracker-vars.asm"
 
 *=$3000 "customfont"
 #import "relay_tracker-charset.asm"
+*=$3800 "screendata"
 #import "relay_tracker-screen.asm"
 
 *=$0801 "BASIC"
-    BasicUpstart($0810)
-*=$0810
+    BasicUpstart($080d)
+*=$080d "Program"
 
     ClearScreen(BLACK) // from Macros.asm
 	lda VIC_MEM_POINTERS // point to the new characters
@@ -67,15 +69,29 @@ check_e_hit:
 // F (Change Filename)
 check_f_hit:
     cmp #$46
-    bne check_n_hit
+    bne check_l_hit
     jsr change_filename
     jmp mainloop
+//////////////////////////////////////////////////
+// L (Load File)
+check_l_hit:
+    cmp #$4c
+    bne check_n_hit
+    jsr load_file
+    jmp mainloop    
 //////////////////////////////////////////////////
 // N (New Data)
 check_n_hit:
     cmp #$4e
-    bne check_colon_hit
+    bne check_s_hit
     // TODO: New Data
+    jmp mainloop
+//////////////////////////////////////////////////
+// S (Save File)
+check_s_hit:
+    cmp #$53
+    bne check_colon_hit
+    jsr save_file
     jmp mainloop
 //////////////////////////////////////////////////
 // COLON (Change Pattern DOWN)
@@ -94,7 +110,7 @@ check_colon_nope:
 // SEMICOLON (Change Pattern UP)
 check_semicolon_hit:
     cmp #59
-    bne check_s_hit
+    bne check_1_hit
     ldx track_block_cursor
     lda track_block,x
     cmp #$ff
@@ -104,81 +120,74 @@ check_semicolon_nope:
     jsr refresh_track_blocks
     jmp mainloop
 //////////////////////////////////////////////////
-// S (Save File)
-check_s_hit:
-    cmp #$53
-    bne check_1_hit
-    jsr save_file
-    jmp mainloop
-//////////////////////////////////////////////////
 // 1 (Set Relay 1)
 check_1_hit:
     cmp #$31
     bne check_2_hit
-    // TODO: Set Relay 1
+    jsr toggle_relay_1
     jmp mainloop
 //////////////////////////////////////////////////
 // 2 (Set Relay 2)
 check_2_hit:
     cmp #$32
     bne check_3_hit
-    // TODO: Set Relay 2
+    jsr toggle_relay_2
     jmp mainloop
 //////////////////////////////////////////////////
 // 3 (Set Relay 3)
 check_3_hit:
     cmp #$33
     bne check_4_hit
-    // TODO: Set Relay 3
+    jsr toggle_relay_3
     jmp mainloop
 //////////////////////////////////////////////////
 // 4 (Set Relay 4)
 check_4_hit:
     cmp #$34
     bne check_5_hit
-    // TODO: Set Relay 4
+    jsr toggle_relay_4
     jmp mainloop
 //////////////////////////////////////////////////
 // 5 (Set Relay 5)
 check_5_hit:
     cmp #$35
     bne check_6_hit
-    // TODO: Set Relay 5
+    jsr toggle_relay_5
     jmp mainloop
 //////////////////////////////////////////////////
 // 6 (Set Relay 6)
 check_6_hit:
     cmp #$36
     bne check_7_hit
-    // TODO: Set Relay 6
+    jsr toggle_relay_6
     jmp mainloop
 //////////////////////////////////////////////////
 // 7 (Set Relay 7)
 check_7_hit:
     cmp #$37
     bne check_8_hit
-    // TODO: Set Relay 7
+    jsr toggle_relay_7
     jmp mainloop
 //////////////////////////////////////////////////
 // 8 (Set Relay 8)
 check_8_hit:
     cmp #$38
     bne check_minus_hit
-    // TODO: Set Relay 8
+    jsr toggle_relay_8
     jmp mainloop
 //////////////////////////////////////////////////
 // MINUS (Turn OFF all relays)
 check_minus_hit:
     cmp #$2d
     bne check_plus_hit
-    // TODO: Turn OFF all relays
+    jsr all_relay_off
     jmp mainloop
 //////////////////////////////////////////////////
 // PLUS (Turn ON all relays)
 check_plus_hit:
     cmp #$2b
     bne check_star_hit
-    // TODO: Turn ON all relays
+    jsr all_relay_on
     jmp mainloop
 //////////////////////////////////////////////////
 // STAR (Change Command)
@@ -233,18 +242,30 @@ check_f7_hit:
     // TODO: Page DOWN in current Pattern
     jmp mainloop
 //////////////////////////////////////////////////
-// Cursor UP (Move up one position in current pattern)
+// Cursor UP (Move down one position in current pattern)
 check_cursor_up_hit:
     cmp #$11
     bne check_cursor_down_hit
-    // TODO: Move up one position in current pattern
+    // TODO: Move down one position in current pattern
+    lda pattern_cursor
+    cmp #$ff
+    beq check_pattern_too_low
+    inc pattern_cursor
+    jsr refresh_pattern
+check_pattern_too_low:
     jmp mainloop
 //////////////////////////////////////////////////
-// Cursor DOWN (Move down one position in current pattern)
+// Cursor DOWN (Move up one position in current pattern)
 check_cursor_down_hit:
     cmp #$91
     bne check_home_hit
-    // TODO: Move down one position in current pattern
+    // TODO: Move up one position in current pattern
+    lda pattern_cursor
+    cmp #$00
+    beq check_pattern_too_high
+    dec pattern_cursor
+    jsr refresh_pattern
+check_pattern_too_high:
     jmp mainloop
 //////////////////////////////////////////////////
 // HOME (Move to top position in current pattern)
@@ -270,7 +291,10 @@ check_keys_done:
 initialize:
     lda #08
     sta drive
-    
+
+    lda #$ff
+    sta $dd03 // Set all DATA Direction on user port
+
     ldx #00
 init_fn_loop:
     lda initial_filename,x
@@ -283,6 +307,9 @@ init_fn_loop:
 
     lda #track_block_cursor_init
     sta track_block_cursor
+
+    lda #pattern_cursor_init
+    sta pattern_cursor
 
     rts
 initial_filename:
@@ -329,13 +356,503 @@ ds_fn_2:
 
     jsr show_drive
     jsr refresh_track_blocks
+    jsr refresh_pattern
+    rts
+
+.macro DrawRelays(xpos,ypos) {
+    clc
+    lsr
+    tax
+    bcc dr_1_1
+    lda #90
+    sta $0400+xpos+ypos*40
+    lda #02
+    sta $d800+xpos+ypos*40
+    jmp dr_1_2
+dr_1_1:
+    lda #94
+    sta $0400+xpos+ypos*40
+    lda #11
+    sta $d800+xpos+ypos*40
+dr_1_2:
+    clc
+    txa
+    lsr
+    tax
+    bcc dr_2_1
+    lda #90
+    sta $0401+xpos+ypos*40
+    lda #02
+    sta $d801+xpos+ypos*40
+    jmp dr_2_2
+dr_2_1:
+    lda #94
+    sta $0401+xpos+ypos*40
+    lda #11
+    sta $d801+xpos+ypos*40
+dr_2_2:
+    clc
+    txa
+    lsr
+    tax
+    bcc dr_3_1
+    lda #90
+    sta $0402+xpos+ypos*40
+    lda #02
+    sta $d802+xpos+ypos*40
+    jmp dr_3_2
+dr_3_1:
+    lda #94
+    sta $0402+xpos+ypos*40
+    lda #11
+    sta $d802+xpos+ypos*40
+dr_3_2:
+    clc
+    txa
+    lsr
+    tax
+    bcc dr_4_1
+    lda #90
+    sta $0403+xpos+ypos*40
+    lda #02
+    sta $d803+xpos+ypos*40
+    jmp dr_4_2
+dr_4_1:
+    lda #94
+    sta $0403+xpos+ypos*40
+    lda #11
+    sta $d803+xpos+ypos*40
+dr_4_2:
+    clc
+    txa
+    lsr
+    tax
+    bcc dr_5_1
+    lda #90
+    sta $0404+xpos+ypos*40
+    lda #02
+    sta $d804+xpos+ypos*40
+    jmp dr_5_2
+dr_5_1:
+    lda #94
+    sta $0404+xpos+ypos*40
+    lda #11
+    sta $d804+xpos+ypos*40
+dr_5_2:
+    clc
+    txa
+    lsr
+    tax
+    bcc dr_6_1
+    lda #90
+    sta $0405+xpos+ypos*40
+    lda #02
+    sta $d805+xpos+ypos*40
+    jmp dr_6_2
+dr_6_1:
+    lda #94
+    sta $0405+xpos+ypos*40
+    lda #11
+    sta $d805+xpos+ypos*40
+dr_6_2:
+    clc
+    txa
+    lsr
+    tax
+    bcc dr_7_1
+    lda #90
+    sta $0406+xpos+ypos*40
+    lda #02
+    sta $d806+xpos+ypos*40
+    jmp dr_7_2
+dr_7_1:
+    lda #94
+    sta $0406+xpos+ypos*40
+    lda #11
+    sta $d806+xpos+ypos*40
+dr_7_2:
+    clc
+    txa
+    lsr
+    tax
+    bcc dr_8_1
+    lda #90
+    sta $0407+xpos+ypos*40
+    lda #02
+    sta $d807+xpos+ypos*40
+    jmp dr_8_2
+dr_8_1:
+    lda #94
+    sta $0407+xpos+ypos*40
+    lda #11
+    sta $d807+xpos+ypos*40
+dr_8_2:
+}
+
+////////////////////////////////////////////////////
+// refresh pattern
+refresh_pattern:
+
+    lda #$20 // Clear pattern area
+    ldx #$00
+rp_loop1:
+    sta $400+11*40+1,x // POS Column
+    sta $400+12*40+1,x
+    sta $400+13*40+1,x
+    sta $400+14*40+1,x
+    sta $400+15*40+1,x
+    sta $400+16*40+1,x
+    sta $400+17*40+1,x
+    sta $400+18*40+1,x
+    sta $400+19*40+1,x
+    sta $400+20*40+1,x
+    sta $400+21*40+1,x
+    sta $400+22*40+1,x
+    sta $400+23*40+1,x
+    sta $400+11*40+17,x // VA Column
+    sta $400+12*40+17,x
+    sta $400+13*40+17,x
+    sta $400+14*40+17,x
+    sta $400+15*40+17,x
+    sta $400+16*40+17,x
+    sta $400+17*40+17,x
+    sta $400+18*40+17,x
+    sta $400+19*40+17,x
+    sta $400+20*40+17,x
+    sta $400+21*40+17,x
+    sta $400+22*40+17,x
+    sta $400+23*40+17,x    
+    inx
+    cpx #$04
+    bne rp_loop1
+    ldx#$00
+rp_loop2:
+    sta $400+11*40+6,x // RELAY Column
+    sta $400+12*40+6,x
+    sta $400+13*40+6,x
+    sta $400+14*40+6,x
+    sta $400+15*40+6,x
+    sta $400+16*40+6,x
+    sta $400+17*40+6,x
+    sta $400+18*40+6,x
+    sta $400+19*40+6,x
+    sta $400+20*40+6,x
+    sta $400+21*40+6,x
+    sta $400+22*40+6,x
+    sta $400+23*40+6,x
+    inx
+    cpx#$0a
+    bne rp_loop2
+    ldx #$00
+rp_loop3:
+    sta $400+11*40+22,x // Command Column
+    sta $400+12*40+22,x
+    sta $400+13*40+22,x
+    sta $400+14*40+22,x
+    sta $400+15*40+22,x
+    sta $400+16*40+22,x
+    sta $400+17*40+22,x
+    sta $400+18*40+22,x
+    sta $400+19*40+22,x
+    sta $400+20*40+22,x
+    sta $400+21*40+22,x
+    sta $400+22*40+22,x
+    sta $400+23*40+22,x
+    inx
+    cpx #$09
+    bne rp_loop3
+    ldx #$00
+rp_loop4:
+    sta $400+11*40+32,x // Command DATA Column
+    sta $400+12*40+32,x
+    sta $400+13*40+32,x
+    sta $400+14*40+32,x
+    sta $400+15*40+32,x
+    sta $400+16*40+32,x
+    sta $400+17*40+32,x
+    sta $400+18*40+32,x
+    sta $400+19*40+32,x
+    sta $400+20*40+32,x
+    sta $400+21*40+32,x
+    sta $400+22*40+32,x
+    sta $400+23*40+32,x
+    inx
+    cpx #$07
+    bne rp_loop4
+
+    // Done clearing, now draw pattern
+
+    // current_pattern
+    // pattern_cursor
+    
+    // pattern_block_start
+    // pattern_block_end
+    // pattern is 256 bytes (relay data)
+    //            256 bytes (command data)
+    //            256 bytes (command data data)
+    //            256 bytes (future data)
+
+    // 13 shown pattern values on screen
+    // 7 is the cursor position
+
+rp_v1:
+    clc
+    lda pattern_cursor
+    sbc #$05
+    bcs rp_v1_2
+    jmp rp_v2
+rp_v1_2:
+    PrintHex(2,11)
+    clc
+    lda pattern_cursor
+    sbc #$05
+    tax
+    lda pattern_block_start,x
+    DrawRelays(7,11)
+    clc
+    lda pattern_cursor
+    sbc #$05
+    tax
+    lda pattern_block_start,x
+    PrintHex(18,11)
+rp_v2:
+    clc
+    lda pattern_cursor
+    sbc #$04
+    bcs rp_v2_2
+    jmp rp_v3
+rp_v2_2:
+    PrintHex(2,12)
+    clc
+    lda pattern_cursor
+    sbc #$04
+    tax
+    lda pattern_block_start,x
+    DrawRelays(7,12)
+    clc
+    lda pattern_cursor
+    sbc #$04
+    tax
+    lda pattern_block_start,x
+    PrintHex(18,12)
+rp_v3:
+    clc
+    lda pattern_cursor
+    sbc #$03
+    bcs rp_v3_2
+    jmp rp_v4
+rp_v3_2:
+    PrintHex(2,13)
+    clc
+    lda pattern_cursor
+    sbc #$03
+    tax
+    lda pattern_block_start,x
+    DrawRelays(7,13)
+    clc
+    lda pattern_cursor
+    sbc #$03
+    tax
+    lda pattern_block_start,x
+    PrintHex(18,13)
+rp_v4:
+    clc
+    lda pattern_cursor
+    sbc #$02
+    bcs rp_v4_2
+    jmp rp_v5
+rp_v4_2:
+    PrintHex(2,14)
+    clc
+    lda pattern_cursor
+    sbc #$02
+    tax
+    lda pattern_block_start,x
+    DrawRelays(7,14)
+    clc
+    lda pattern_cursor
+    sbc #$02
+    tax
+    lda pattern_block_start,x
+    PrintHex(18,14)
+rp_v5:
+    clc
+    lda pattern_cursor
+    sbc #$01
+    bcs rp_v5_2
+    jmp rp_v6
+rp_v5_2:
+    PrintHex(2,15)
+    clc
+    lda pattern_cursor
+    sbc #$01
+    tax
+    lda pattern_block_start,x
+    DrawRelays(7,15)
+    clc
+    lda pattern_cursor
+    sbc #$01
+    tax
+    lda pattern_block_start,x
+    PrintHex(18,15)
+rp_v6:
+    clc
+    lda pattern_cursor
+    sbc #$00
+    bcs rp_v6_2
+    jmp rp_v7
+rp_v6_2:
+    PrintHex(2,16)
+    clc
+    lda pattern_cursor
+    sbc #$00
+    tax
+    lda pattern_block_start,x
+    DrawRelays(7,16)
+    clc
+    lda pattern_cursor
+    sbc #$00
+    tax
+    lda pattern_block_start,x
+    PrintHex(18,16)
+rp_v7:
+    clc
+    lda pattern_cursor
+    PrintHex(2,17)
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    jsr draw_current_relays
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    PrintHex(18,17)
+rp_v8:
+    clc
+    lda pattern_cursor
+    adc #$01
+    bcc rp_v8_2
+    jmp rp_v9
+rp_v8_2:
+    PrintHex(2,18)
+    clc
+    lda pattern_cursor
+    adc #$01
+    tax
+    lda pattern_block_start,x
+    DrawRelays(7,18)
+    clc
+    lda pattern_cursor
+    adc #$01
+    tax
+    lda pattern_block_start,x
+    PrintHex(18,18)
+rp_v9:
+    clc
+    lda pattern_cursor
+    adc #$02
+    bcc rp_v9_2
+    jmp rp_v10
+rp_v9_2:
+    PrintHex(2,19)
+    clc
+    lda pattern_cursor
+    adc #$02
+    tax
+    lda pattern_block_start,x
+    DrawRelays(7,19)
+    clc
+    lda pattern_cursor
+    adc #$02
+    tax
+    lda pattern_block_start,x
+    PrintHex(18,19)
+rp_v10:
+    clc
+    lda pattern_cursor
+    adc #$03
+    bcc rp_v10_2
+    jmp rp_v11
+rp_v10_2:
+    PrintHex(2,20)
+    clc
+    lda pattern_cursor
+    adc #$03
+    tax
+    lda pattern_block_start,x
+    DrawRelays(7,20)
+    clc
+    lda pattern_cursor
+    adc #$03
+    tax
+    lda pattern_block_start,x
+    PrintHex(18,20)
+rp_v11:
+    clc
+    lda pattern_cursor
+    adc #$04
+    bcc rp_v11_2
+    jmp rp_v12
+rp_v11_2:
+    PrintHex(2,21)
+    clc
+    lda pattern_cursor
+    adc #$04
+    tax
+    lda pattern_block_start,x
+    DrawRelays(7,21)
+    clc
+    lda pattern_cursor
+    adc #$04
+    tax
+    lda pattern_block_start,x
+    PrintHex(18,21)
+rp_v12:
+    clc
+    lda pattern_cursor
+    adc #$05
+    bcc rp_v12_2
+    jmp rp_v13
+rp_v12_2:
+    PrintHex(2,22)
+    clc
+    lda pattern_cursor
+    adc #$05
+    tax
+    lda pattern_block_start,x
+    DrawRelays(7,22)
+    clc
+    lda pattern_cursor
+    adc #$05
+    tax
+    lda pattern_block_start,x
+    PrintHex(18,22)
+rp_v13:
+    clc
+    lda pattern_cursor
+    adc #$06
+    bcc rp_v13_2
+    jmp rp_v14
+rp_v13_2:
+    PrintHex(2,23)
+    clc
+    lda pattern_cursor
+    adc #$06
+    tax
+    lda pattern_block_start,x
+    DrawRelays(7,23)
+    clc
+    lda pattern_cursor
+    adc #$06
+    tax
+    lda pattern_block_start,x
+    PrintHex(18,23)
+rp_v14:
     rts
 
 ////////////////////////////////////////////////////
 // refresh track blocks
 refresh_track_blocks:
 
-    lda #$20
+    lda #$20 // Clear Track Blocks Area
     ldx #$00
 rtb_loop1:
     sta $400+3*40,x
@@ -344,6 +861,8 @@ rtb_loop1:
     inx
     cpx #$07
     bne rtb_loop1
+
+    // Done clearing track blocks area
 
     ldx track_block_cursor
     dex
@@ -395,8 +914,6 @@ rtb_rev:
     cpx #$07
     bne rtb_rev
     rts
-
-
 
 ////////////////////////////////////////////////////
 // change filename
@@ -697,6 +1214,94 @@ save_saving:
 .byte 0
 
 ////////////////////////////////////////////////////
+// load file
+load_file:
+
+    lda #$01
+    sta $0286
+    jsr $e544      // clear screen
+
+    ldx #$00
+ld_labl1:
+    lda load_loading,x
+    beq ld_labl2
+    sta SCREEN_RAM,x
+    inx
+    jmp ld_labl1
+    
+    ldx #$00
+ld_labl0:
+    lda #$00
+    sta filename_save,x
+    inx
+    cpx #$10
+    bne ld_labl0
+ld_labl2:
+    ldx #$00
+ld_labl3:
+    lda filename_buffer,x
+    beq ld_labl33
+    sta SCREEN_RAM+8,x
+    inx
+    cpx #$10
+    bne ld_labl3
+ld_labl33:
+    ldx #$00
+ld_labl4:
+    lda filename_buffer,x
+    cmp #$00
+    beq ld_labl5
+    cmp #27
+    bcs ld_dont_add
+    adc #$40
+ld_dont_add:
+    sta filename_save,x
+    inx
+    jmp ld_labl4
+ld_labl5:
+    stx filename_length
+
+.var loadto   = $4000 
+
+   lda #$0f
+   ldx drive
+   ldy #$ff
+   jsr KERNAL_SETLFS
+    
+   lda filename_length //#$10
+   ldx #<filename_save
+   ldy #>filename_save
+   jsr KERNAL_SETNAM
+    
+   ldx #<loadto // Set End Address
+   ldy #>loadto 
+   lda #00
+   jsr KERNAL_LOAD
+
+    lda #13; jsr KERNAL_CHROUT
+    lda #13; jsr KERNAL_CHROUT
+    jsr show_drive_status
+
+    ldx #$00
+ld_labl22:
+    lda dir_presskey,x
+    beq ld_out
+    jsr KERNAL_CHROUT
+    inx
+    jmp ld_labl22
+ld_out:
+    jsr $f142      // w8 a key
+    beq ld_out
+    jsr draw_screen
+    rts
+
+load_loading:
+.encoding "screencode_mixed"
+.text "loading "
+.byte 0
+
+
+////////////////////////////////////////////////////
 // show drive status
 show_drive_status:
     lda #$00
@@ -726,4 +1331,239 @@ sds_eof:
     rts
 sds_devnp:
     //  ... device not present handling ...
+    rts
+
+////////////////////////////////////////////////////
+// Draw Current Relay
+draw_current_relays:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    sta $dd01 // Set Actual USER Port relays
+    DrawRelays(7,17)
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    DrawRelays(31,0)
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    PrintHex(18,17)
+/*
+    ldx #$00
+dcr_rev:
+    lda $400+17*40+6,x
+    adc #$80
+    sta $400+17*40+6,x
+    inx
+    cpx#$0a
+    bne dcr_rev
+   */
+    rts
+
+////////////////////////////////////////////////////
+// toggle relay 1
+toggle_relay_1:
+    clc
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #$01
+    beq check_1_hit_offz
+    jmp check_1_hit_off
+check_1_hit_offz:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    ora #$01
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+check_1_hit_off:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #$fe
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+
+////////////////////////////////////////////////////
+// toggle relay 2
+toggle_relay_2:
+    clc
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #$02
+    beq check_2_hit_offz
+    jmp check_2_hit_off
+check_2_hit_offz:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    ora #$02
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+check_2_hit_off:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #$fd
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+
+////////////////////////////////////////////////////
+// toggle relay 3
+toggle_relay_3:
+    clc
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #$04
+    beq check_3_hit_offz
+    jmp check_3_hit_off
+check_3_hit_offz:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    ora #$04
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+check_3_hit_off:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #$fb
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+
+////////////////////////////////////////////////////
+// toggle relay 4
+toggle_relay_4:
+    clc
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #$08
+    beq check_4_hit_offz
+    jmp check_4_hit_off
+check_4_hit_offz:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    ora #$08
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+check_4_hit_off:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #$f7
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+
+////////////////////////////////////////////////////
+// toggle relay 5
+toggle_relay_5:
+    clc
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #16
+    beq check_5_hit_offz
+    jmp check_5_hit_off
+check_5_hit_offz:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    ora #16
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+check_5_hit_off:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #$ef
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+
+////////////////////////////////////////////////////
+// toggle relay 6
+toggle_relay_6:
+    clc
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #32
+    beq check_6_hit_offz
+    jmp check_6_hit_off
+check_6_hit_offz:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    ora #32
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+check_6_hit_off:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #$df
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+
+////////////////////////////////////////////////////
+// toggle relay 7
+toggle_relay_7:
+    clc
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #64
+    beq check_7_hit_offz
+    jmp check_7_hit_off
+check_7_hit_offz:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    ora #64
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+check_7_hit_off:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #$bf
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+
+////////////////////////////////////////////////////
+// toggle relay 8
+toggle_relay_8:
+    clc
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #128
+    beq check_8_hit_offz
+    jmp check_8_hit_off
+check_8_hit_offz:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    ora #128
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+check_8_hit_off:
+    ldx pattern_cursor
+    lda pattern_block_start,x
+    and #$7f
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+
+////////////////////////////////////////////////////
+// all relays off
+all_relay_off:
+    lda #$00
+    ldx pattern_cursor
+    sta pattern_block_start,x
+    jsr draw_current_relays
+    rts
+
+////////////////////////////////////////////////////
+// all relays on
+all_relay_on:
+    lda #$ff
+    ldx pattern_cursor
+    sta pattern_block_start,x
+    jsr draw_current_relays
     rts

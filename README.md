@@ -29,6 +29,6 @@ Cursor Up - Move Pattern Up
 
 1-8 - Toggle relay
 
-- - Turn off all relays
+minus - Turn off all relays
 
-+ - Turn on all relays
+plus - Turn on all relays

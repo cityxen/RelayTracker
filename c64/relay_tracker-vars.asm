@@ -7,23 +7,23 @@
 // disk vars
 .var filename            = $4b8 // 16 bytes
 .var filename_color      = $d8b8
-.var filename_buffer     = $c000
-.var filename_buffer_end = $c011
-.var filename_cursor     = $c012
-.var filename_length     = $c013
-.var drive               = $c014
-.var filename_save       = $c020 // - $802f
+.var filename_buffer     = $3fe0
+.var filename_buffer_end = $3fd2
+.var filename_cursor     = $3fd3
+.var filename_length     = $3fd4
+.var drive               = $3fd5
+.var filename_save       = $3ff0 // - $802f
 
 // track block (256 bytes)
 .var track_block         = $4000 // - $40ff
-.var track_block_cursor  = $c030
+.var track_block_cursor  = $3fd6
 .const track_block_cursor_init = 0
 
 // pattern (256 bytes x 3)
-.var current_pattern     = $c016
-.var current_speed       = $c017
-.var pattern_cursor      = $c018
-.const pattern_block_cursor_init = 0
+.var current_pattern     = $3fd7
+.var current_speed       = $3fd8
+.var pattern_cursor      = $3fd9
+.const pattern_cursor_init = 0
 .var pattern_block_start = $4100
 .var pattern_block_end   = $9fff
 
