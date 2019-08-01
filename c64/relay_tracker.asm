@@ -1338,7 +1338,10 @@ sds_devnp:
 draw_current_relays:
     ldx pattern_cursor
     lda pattern_block_start,x
+    eor #$ff
     sta $dd01 // Set Actual USER Port relays
+    ldx pattern_cursor
+    lda pattern_block_start,x
     DrawRelays(7,17)
     ldx pattern_cursor
     lda pattern_block_start,x
