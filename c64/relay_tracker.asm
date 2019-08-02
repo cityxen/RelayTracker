@@ -1,7 +1,15 @@
 //////////////////////////////////////////////////////////////////////////
-// Relay Tracker
-// by Deadline
-// (c)2019 CityXen
+// Relay Tracker by Deadline (c)2019 CityXen
+//
+// As seen on our youtube channel:
+// https://www.youtube.com/CityXen
+//
+// Assembly files are for use with KickAssembler
+// http://theweb.dk/KickAssembler
+//
+// How To setup KickAssembler in Windows 10:
+// https://www.youtube.com/watch?v=R9VE2U_p060
+//
 //////////////////////////////////////////////////////////////////////////
 
 *=$2ff0 "constants"
