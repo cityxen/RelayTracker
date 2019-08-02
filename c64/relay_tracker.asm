@@ -27,7 +27,7 @@
 *=$080d "Program"
 
     ClearScreen(BLACK) // from Macros.asm
-	lda VIC_MEM_POINTERS // point to the new characters
+    lda VIC_MEM_POINTERS // point to the new characters
     ora #$0c
     sta VIC_MEM_POINTERS
     jsr initialize
@@ -254,7 +254,6 @@ check_f7_hit:
 check_cursor_up_hit:
     cmp #$11
     bne check_cursor_down_hit
-    // TODO: Move down one position in current pattern
     lda pattern_cursor
     cmp #$ff
     beq check_pattern_too_low
@@ -267,7 +266,6 @@ check_pattern_too_low:
 check_cursor_down_hit:
     cmp #$91
     bne check_home_hit
-    // TODO: Move up one position in current pattern
     lda pattern_cursor
     cmp #$00
     beq check_pattern_too_high
@@ -293,17 +291,17 @@ check_clr_hit:
 check_keys_done:
     jmp mainloop
 
-
 ////////////////////////////////////////////////////
 // initialize
 initialize:
-    lda #08
-    sta drive
 
-    lda #$ff
-    sta $dd03 // Set all DATA Direction on user port
+    lda #08     // Set drive to 8
+    sta drive   // Set drive to 8
 
-    ldx #00
+    lda #$ff    // Set all DATA Direction
+    sta $dd03   // on user port
+
+    ldx #00     // Store initial_filename in filename_buffer
 init_fn_loop:
     lda initial_filename,x
     sta filename_buffer,x
@@ -313,10 +311,10 @@ init_fn_loop:
     ldx #00
     stx filename_cursor
 
-    lda #track_block_cursor_init
+    lda #track_block_cursor_init // Set Track block cursor to 0
     sta track_block_cursor
 
-    lda #pattern_cursor_init
+    lda #pattern_cursor_init    // Set Patter cursor to 0
     sta pattern_cursor
 
     rts
@@ -327,7 +325,8 @@ initial_filename:
 ////////////////////////////////////////////////////
 // draw screen
 draw_screen:
-    ldx #$00
+
+    ldx #$00    // Draw the screen from memory location
 ds_loop:
     lda screen_001+2,x
     sta 1024,x
@@ -338,7 +337,7 @@ ds_loop:
     lda screen_001+2+512+256,x
     sta 1024+512+256,x
     lda screen_001+1000+2,x
-    sta COLOR_RAM,x
+    sta COLOR_RAM,x // And the colors
     lda screen_001+1000+2+256,x
     sta COLOR_RAM+256,x
     lda screen_001+1000+2+512,x
@@ -348,7 +347,7 @@ ds_loop:
     inx
     bne ds_loop
 
-    ldx #$00
+    ldx #$00    // Draw the filename onto the screen
 ds_fn_loop:
     lda filename_buffer,x
     cmp #$00
@@ -362,12 +361,12 @@ ds_fn_2:
     cpx #$10
     bne ds_fn_loop
 
-    jsr show_drive
-    jsr refresh_track_blocks
-    jsr refresh_pattern
+    jsr show_drive  // Draw the drive onto the screen
+    jsr refresh_track_blocks // Update track blocks
+    jsr refresh_pattern // Update pattern
     rts
 
-.macro DrawRelays(xpos,ypos) {
+.macro DrawRelays(xpos,ypos) { // Macro for drawing relay settings
     clc
     lsr
     tax
@@ -517,6 +516,7 @@ rp_loop1:
     sta $400+21*40+1,x
     sta $400+22*40+1,x
     sta $400+23*40+1,x
+
     sta $400+11*40+17,x // VA Column
     sta $400+12*40+17,x
     sta $400+13*40+17,x
@@ -926,7 +926,8 @@ rtb_rev:
 ////////////////////////////////////////////////////
 // change filename
 change_filename:
-    ldx #$00
+
+    ldx #$00 // Reverse the editing area
 fn_reverse:
     lda filename,x
     ora #$80
@@ -937,9 +938,9 @@ fn_reverse:
     cpx #$10
     bne fn_reverse
 
-fn_kb_chk:
+fn_kb_chk: // Check Keyboard loop
 
-    lda #$55
+    lda #$55    // Check raster and flash the cursor
     cmp VIC_RASTER_COUNTER
     bne fn_kb_chk_no_crs
 
@@ -954,7 +955,7 @@ fn_kb_chk_crs_not_revd:
     and #$7f
     sta filename,x
 
-fn_kb_chk_no_crs:
+fn_kb_chk_no_crs: // End of flash cursor stuff
 
     ldx filename_cursor
     cpx #$10
@@ -999,7 +1000,7 @@ fn_kb_num:
 fn_kb_chk_end:
     ldx #00
 
-fn_rereverse:
+fn_rereverse:   // Done editing, re-reverse all the characters
     lda filename,x
     and #$7f
     sta filename,x
@@ -1009,8 +1010,7 @@ fn_rereverse:
     bne fn_rereverse
     ldx #$00
 
-// fill in spaces on end with 0
-    ldx #$0f
+    ldx #$0f // fill in spaces on end with 0 (start at end and work backward)
 fn_trim:
     lda filename_buffer,x
     cmp #$20
@@ -1104,7 +1104,8 @@ labl2:
     jsr $f642      // close serial bus device
     jsr $f6f3      // restore i/o devices to default
 
-    lda #13; jsr KERNAL_CHROUT
+    lda #13
+    jsr KERNAL_CHROUT
     jsr show_drive_status
 
     ldx #$00
@@ -1199,8 +1200,9 @@ sv_labl5:
    lda #<tmpalow
    jsr KERNAL_SAVE 
 
-    lda #13; jsr KERNAL_CHROUT
-    lda #13; jsr KERNAL_CHROUT
+    lda #13
+    jsr KERNAL_CHROUT
+    jsr KERNAL_CHROUT
     jsr show_drive_status
 
     ldx #$00
@@ -1286,8 +1288,9 @@ ld_labl5:
    lda #00
    jsr KERNAL_LOAD
 
-    lda #13; jsr KERNAL_CHROUT
-    lda #13; jsr KERNAL_CHROUT
+    lda #13
+    jsr KERNAL_CHROUT
+    jsr KERNAL_CHROUT
     jsr show_drive_status
 
     ldx #$00
@@ -1346,8 +1349,8 @@ sds_devnp:
 draw_current_relays:
     ldx pattern_cursor
     lda pattern_block_start,x
-    eor #$ff
-    sta $dd01 // Set Actual USER Port relays
+    eor #$ff    // relay block is actually inverse of what is shown on screen
+    sta $dd01   // Set Actual USER Port relays
     ldx pattern_cursor
     lda pattern_block_start,x
     DrawRelays(7,17)
