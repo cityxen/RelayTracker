@@ -329,6 +329,7 @@ check_cursor_up_hit:
     inc pattern_cursor
     jsr calculate_pattern_block
     jsr refresh_pattern
+    jsr draw_current_relays
 check_pattern_too_low:
     jmp mainloop
 //////////////////////////////////////////////////
@@ -342,6 +343,7 @@ check_cursor_down_hit:
     dec pattern_cursor
     jsr calculate_pattern_block
     jsr refresh_pattern
+    jsr draw_current_relays
 check_pattern_too_high:
     jmp mainloop
 //////////////////////////////////////////////////
