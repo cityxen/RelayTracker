@@ -5,7 +5,9 @@ As seen on our youtube channel: https://www.youtube.com/CityXen
 
 # Commodore 64 Version
 
-Version 1.1b
+Version: 1.1b
+
+Author: Deadline
 
 Up to 254 Tracks
 

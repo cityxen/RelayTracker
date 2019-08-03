@@ -1,5 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
-// Relay Tracker by Deadline (c)2019 CityXen
+// Relay Tracker
+//
+// Version: 1.1b
+// Author: Deadline
+//
+// 2019 CityXen
 //
 // As seen on our youtube channel:
 // https://www.youtube.com/CityXen

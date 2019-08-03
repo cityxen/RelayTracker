@@ -1,7 +1,10 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker (VARS)
-// by Deadline
-// (c)2019 CityXen
+//
+// Version: 1.1b
+// Author: Deadline
+//
+// 2019 CityXen
 //////////////////////////////////////////////////////////////////////////
 
 // disk vars
@@ -20,20 +23,17 @@
 .var track_block_cursor  = $3fd6
 .const track_block_cursor_init = 0
 
-// pattern (256 bytes x 3)
+// pattern (256 bytes x 2)
 .var current_pattern     = $3fd7
 .var current_speed       = $3fd8
 .var pattern_cursor      = $3fd9
 .const pattern_cursor_init = 0
 .var pattern_block_start = $4100
+.var pattern_block_end   = $9fff
 .const pattern_block     = $fb
 .const pattern_block_lo  = $fb
 .const pattern_block_hi  = $fc
 .const pattern_min       = $00
 .const pattern_max       = $1f
 
-
-
-// .var pattern_block       = pattern_block_start
-.var pattern_block_end   = $9fff
 
