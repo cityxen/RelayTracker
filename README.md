@@ -15,6 +15,8 @@ Up to 31 Patterns of 255 different states
 
 Notes: If you're going to attempt to compile this, you'll need the Macros and Constants from https://github.com/cityxen/Commodore64_Programming repo
 
+Relay Tracker Data is located from $4000 - $9fff
+
 Functions that work:
 
 D - change drive number (toggles between drives 08,09,10,11)
@@ -41,6 +43,14 @@ Cursor Up - Move Pattern Up
 
 1-8 - Toggle relay
 
-minus - Turn off all relays
+MINUS - Turn off all relays
 
-plus - Turn on all relays
+PLUS - Turn on all relays
+
+HOME - Move Pattern Cursor to TOP
+
+CLR - Move Pattern Cursor to BOTTOM
+
+F5 - Pattern Cursor Page UP
+
+F7 - Pattern Cursor Page DOWN

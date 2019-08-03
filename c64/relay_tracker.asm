@@ -274,14 +274,22 @@ check_f3_hit_too_low:
 check_f4_hit:
     cmp #$8a
     bne check_f5_hit
-    // TODO: Pattern UP
+    // TODO: Pattern DOWN
     jmp mainloop
 //////////////////////////////////////////////////
 // F5 (Page UP in current Pattern)
 check_f5_hit:
     cmp #$87
     bne check_f6_hit
-    // TODO: Page UP in current Pattern
+    clc
+    lda pattern_cursor
+    sbc #$05
+    bcs c_f5_1
+    lda #$00
+c_f5_1:
+    sta pattern_cursor
+    jsr calculate_pattern_block
+    jsr refresh_pattern
     jmp mainloop
 //////////////////////////////////////////////////
 // F6
@@ -294,7 +302,15 @@ check_f6_hit:
 check_f7_hit:
     cmp #$88
     bne check_f8_hit
-    // TODO: Page DOWN in current Pattern
+    clc
+    lda pattern_cursor
+    adc #$05
+    bcc c_f7_1
+    lda #$ff
+c_f7_1:
+    sta pattern_cursor
+    jsr calculate_pattern_block
+    jsr refresh_pattern
     jmp mainloop
 //////////////////////////////////////////////////
 // F8
@@ -313,7 +329,6 @@ check_cursor_up_hit:
     inc pattern_cursor
     jsr calculate_pattern_block
     jsr refresh_pattern
-    
 check_pattern_too_low:
     jmp mainloop
 //////////////////////////////////////////////////
@@ -334,14 +349,20 @@ check_pattern_too_high:
 check_home_hit:
     cmp #$13
     bne check_clr_hit
-    // TODO: Move to top position in current pattern)
+    lda #$00
+    sta pattern_cursor
+    jsr calculate_pattern_block
+    jsr refresh_pattern
     jmp mainloop
 //////////////////////////////////////////////////
 // CLR (Move to end position in current pattern)
 check_clr_hit:
     cmp #$93
     bne check_keys_done
-    // TODO: Move to end position in current pattern
+    lda #$ff
+    sta pattern_cursor
+    jsr calculate_pattern_block
+    jsr refresh_pattern    
     jmp mainloop
 
 check_keys_done:
@@ -674,8 +695,6 @@ rp_v1:
     jmp rp_v2
 rp_v1_2:
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,11)
     ldx #$00
     lda (pattern_block,x)
@@ -691,8 +710,6 @@ rp_v2:
     jmp rp_v3
 rp_v2_2:
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,12)
     ldx #$00
     lda (pattern_block,x)
@@ -708,8 +725,6 @@ rp_v3:
     jmp rp_v4
 rp_v3_2:
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,13)
     ldx #$00
     lda (pattern_block,x)
@@ -725,8 +740,6 @@ rp_v4:
     jmp rp_v5
 rp_v4_2:
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,14)
     ldx #$00
     lda (pattern_block,x)
@@ -742,8 +755,6 @@ rp_v5:
     jmp rp_v6
 rp_v5_2:
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,15)
     ldx #$00
     lda (pattern_block,x)
@@ -759,8 +770,6 @@ rp_v6:
     jmp rp_v7
 rp_v6_2:
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,16)
     ldx #$00
     lda (pattern_block,x)
@@ -771,8 +780,6 @@ rp_v6_2:
 rp_v7:
     lda pattern_cursor
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,17)
     ldx #$00
     lda (pattern_block,x)
@@ -788,8 +795,6 @@ rp_v8:
     jmp rp_v9
 rp_v8_2:
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,18)
     ldx #$00
     lda (pattern_block,x)
@@ -805,8 +810,6 @@ rp_v9:
     jmp rp_v10
 rp_v9_2:
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,19)
     ldx #$00
     lda (pattern_block,x)
@@ -822,8 +825,6 @@ rp_v10:
     jmp rp_v11
 rp_v10_2:
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,20)
     ldx #$00
     lda (pattern_block,x)
@@ -839,8 +840,6 @@ rp_v11:
     jmp rp_v12
 rp_v11_2:
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,21)
     ldx #$00
     lda (pattern_block,x)
@@ -856,8 +855,6 @@ rp_v12:
     jmp rp_v13
 rp_v12_2:
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,22)
     ldx #$00
     lda (pattern_block,x)
@@ -873,8 +870,6 @@ rp_v13:
     jmp rp_v14
 rp_v13_2:
     sta pattern_block_lo
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(2,23)
     ldx #$00
     lda (pattern_block,x)
