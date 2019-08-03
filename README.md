@@ -5,6 +5,9 @@ As seen on our youtube channel: https://www.youtube.com/CityXen
 
 # Commodore 64 Version
 
+Up to 254 Tracks
+Up to 31 Patterns of 255 different states
+
 Functions that work:
 
 D - change drive number (toggles between drives 08,09,10,11)

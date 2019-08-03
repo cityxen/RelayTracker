@@ -15,7 +15,8 @@
 .var filename_save       = $3ff0 // - $802f
 
 // track block (256 bytes)
-.var track_block         = $4000 // - $40ff
+.var track_block         = $4000 // - $40fe
+.var track_block_length  = $40ff
 .var track_block_cursor  = $3fd6
 .const track_block_cursor_init = 0
 
@@ -25,5 +26,14 @@
 .var pattern_cursor      = $3fd9
 .const pattern_cursor_init = 0
 .var pattern_block_start = $4100
+.const pattern_block     = $fb
+.const pattern_block_lo  = $fb
+.const pattern_block_hi  = $fc
+.const pattern_min       = $00
+.const pattern_max       = $1f
+
+
+
+// .var pattern_block       = pattern_block_start
 .var pattern_block_end   = $9fff
 
