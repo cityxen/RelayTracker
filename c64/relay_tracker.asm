@@ -12,6 +12,10 @@
 // Assembly files are for use with KickAssembler
 // http://theweb.dk/KickAssembler
 //
+// Notes: If you're going to attempt to compile this, you'll
+// need the Macros and Constants from this repo:
+// https://github.com/cityxen/Commodore64_Programming
+//
 // How To setup KickAssembler in Windows 10:
 // https://www.youtube.com/watch?v=R9VE2U_p060
 //

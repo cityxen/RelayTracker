@@ -13,6 +13,8 @@ Up to 254 Tracks
 
 Up to 31 Patterns of 255 different states
 
+Notes: If you're going to attempt to compile this, you'll need the Macros and Constants from https://github.com/cityxen/Commodore64_Programming repo
+
 Functions that work:
 
 D - change drive number (toggles between drives 08,09,10,11)
