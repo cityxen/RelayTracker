@@ -290,6 +290,7 @@ c_f5_1:
     sta pattern_cursor
     jsr calculate_pattern_block
     jsr refresh_pattern
+    jsr draw_current_relays
     jmp mainloop
 //////////////////////////////////////////////////
 // F6
@@ -311,6 +312,7 @@ c_f7_1:
     sta pattern_cursor
     jsr calculate_pattern_block
     jsr refresh_pattern
+    jsr draw_current_relays
     jmp mainloop
 //////////////////////////////////////////////////
 // F8
