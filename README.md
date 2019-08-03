@@ -5,7 +5,10 @@ As seen on our youtube channel: https://www.youtube.com/CityXen
 
 # Commodore 64 Version
 
+Version 1.1b
+
 Up to 254 Tracks
+
 Up to 31 Patterns of 255 different states
 
 Functions that work:
