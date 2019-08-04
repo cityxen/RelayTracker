@@ -31,22 +31,25 @@
 *=$3800 "screendata"
 #import "relay_tracker-screen.asm"
 
+//////////////////////////////////////////////////////////
+// START OF PROGRAM
 *=$0801 "BASIC"
     BasicUpstart($080d)
-*=$080d "Program"
 
-    ClearScreen(BLACK) // from Macros.asm
+*=$080d "Program"
     lda VIC_MEM_POINTERS // point to the new characters
     ora #$0c
     sta VIC_MEM_POINTERS
     jsr initialize
     jsr draw_screen
 
+//////////////////////////////////////////////////////////
+// START OF MAIN LOOP
 mainloop:
-//////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 // CHECK KEYBOARD FOR KEY HITS
     jsr KERNAL_GETIN
-//////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
 // SPACE (PLAY/PAUSE)
 check_space_hit:
     cmp #$20
@@ -367,21 +370,18 @@ check_clr_hit:
     sta pattern_cursor
     jsr calculate_pattern_block
     jsr refresh_pattern    
-    jmp mainloop
-
 check_keys_done:
     jmp mainloop
+// END OF MAIN LOOP
+////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////
 // initialize
 initialize:
-
-    lda #08     // Set drive to 8
-    sta drive   // Set drive to 8
-
+    lda #08     // Set drive
+    sta drive   //           to 8
     lda #$ff    // Set all DATA Direction
-    sta $dd03   // on user port
-
+    sta USER_PORT_DATA_DIR // on user port
     ldx #00     // Store initial_filename in filename_buffer
 init_fn_loop:
     lda initial_filename,x
@@ -391,18 +391,13 @@ init_fn_loop:
     bne init_fn_loop
     ldx #00
     stx filename_cursor
-
     lda #track_block_cursor_init // Set Track block cursor to 0
     sta track_block_cursor
-
     lda #pattern_cursor_init    // Set Pattern cursor to 0
     sta pattern_cursor
-
     lda pattern_cursor
     sta pattern_block
-
     jsr calculate_pattern_block
-
     rts
 initial_filename:
 .text "filename.rtd"
@@ -411,10 +406,15 @@ initial_filename:
 ////////////////////////////////////////////////////
 // draw screen
 draw_screen:
-
-    ldx #$00    // Draw the screen from memory location
-ds_loop:
-    lda screen_001+2,x
+    ////////////////////////////////////////////////
+    // draw the petmate screen... start
+    lda screen_001
+    sta BORDER_COLOR
+    lda screen_001+1
+    sta BACKGROUND_COLOR
+    ldx #$00 // Draw the screen from memory location
+dpms_loop:
+    lda screen_001+2,x // petmate screen (+2 is to skip over background/border color)
     sta 1024,x
     lda screen_001+2+256,x
     sta 1024+256,x
@@ -431,8 +431,9 @@ ds_loop:
     lda screen_001+1000+2+512+256,x
     sta COLOR_RAM+512+256,x
     inx
-    bne ds_loop
-
+    bne dpms_loop
+    // draw the petmate screen... end
+    ////////////////////////////////////////////////
     ldx #$00    // Draw the filename onto the screen
 ds_fn_loop:
     lda filename_buffer,x
@@ -446,29 +447,28 @@ ds_fn_2:
     inx
     cpx #$10
     bne ds_fn_loop
-
     jsr show_drive  // Draw the drive onto the screen
     jsr refresh_track_blocks // Update track blocks
     jsr calculate_pattern_block
     jsr refresh_pattern // Update pattern
-
     rts
 
 .macro DrawRelays(xpos,ypos) { // Macro for drawing relay settings
+    pha
     clc
     lsr
     tax
     bcc dr_1_1
     lda #90
-    sta $0400+xpos+ypos*40
+    sta SCREEN_RAM+xpos+ypos*40
     lda #02
-    sta $d800+xpos+ypos*40
+    sta COLOR_RAM+xpos+ypos*40
     jmp dr_1_2
 dr_1_1:
     lda #94
-    sta $0400+xpos+ypos*40
+    sta SCREEN_RAM+xpos+ypos*40
     lda #11
-    sta $d800+xpos+ypos*40
+    sta COLOR_RAM+xpos+ypos*40
 dr_1_2:
     clc
     txa
@@ -476,15 +476,15 @@ dr_1_2:
     tax
     bcc dr_2_1
     lda #90
-    sta $0401+xpos+ypos*40
+    sta SCREEN_RAM+1+xpos+ypos*40
     lda #02
-    sta $d801+xpos+ypos*40
+    sta COLOR_RAM+1+xpos+ypos*40
     jmp dr_2_2
 dr_2_1:
     lda #94
-    sta $0401+xpos+ypos*40
+    sta SCREEN_RAM+1+xpos+ypos*40
     lda #11
-    sta $d801+xpos+ypos*40
+    sta COLOR_RAM+1+xpos+ypos*40
 dr_2_2:
     clc
     txa
@@ -492,15 +492,15 @@ dr_2_2:
     tax
     bcc dr_3_1
     lda #90
-    sta $0402+xpos+ypos*40
+    sta SCREEN_RAM+2+xpos+ypos*40
     lda #02
-    sta $d802+xpos+ypos*40
+    sta COLOR_RAM+2+xpos+ypos*40
     jmp dr_3_2
 dr_3_1:
     lda #94
-    sta $0402+xpos+ypos*40
+    sta SCREEN_RAM+2+xpos+ypos*40
     lda #11
-    sta $d802+xpos+ypos*40
+    sta COLOR_RAM+2+xpos+ypos*40
 dr_3_2:
     clc
     txa
@@ -508,15 +508,15 @@ dr_3_2:
     tax
     bcc dr_4_1
     lda #90
-    sta $0403+xpos+ypos*40
+    sta SCREEN_RAM+3+xpos+ypos*40
     lda #02
-    sta $d803+xpos+ypos*40
+    sta COLOR_RAM+3+xpos+ypos*40
     jmp dr_4_2
 dr_4_1:
     lda #94
-    sta $0403+xpos+ypos*40
+    sta SCREEN_RAM+3+xpos+ypos*40
     lda #11
-    sta $d803+xpos+ypos*40
+    sta COLOR_RAM+3+xpos+ypos*40
 dr_4_2:
     clc
     txa
@@ -524,15 +524,15 @@ dr_4_2:
     tax
     bcc dr_5_1
     lda #90
-    sta $0404+xpos+ypos*40
+    sta SCREEN_RAM+4+xpos+ypos*40
     lda #02
-    sta $d804+xpos+ypos*40
+    sta COLOR_RAM+4+xpos+ypos*40
     jmp dr_5_2
 dr_5_1:
     lda #94
-    sta $0404+xpos+ypos*40
+    sta SCREEN_RAM+4+xpos+ypos*40
     lda #11
-    sta $d804+xpos+ypos*40
+    sta COLOR_RAM+4+xpos+ypos*40
 dr_5_2:
     clc
     txa
@@ -540,15 +540,15 @@ dr_5_2:
     tax
     bcc dr_6_1
     lda #90
-    sta $0405+xpos+ypos*40
+    sta SCREEN_RAM+5+xpos+ypos*40
     lda #02
-    sta $d805+xpos+ypos*40
+    sta COLOR_RAM+5+xpos+ypos*40
     jmp dr_6_2
 dr_6_1:
     lda #94
-    sta $0405+xpos+ypos*40
+    sta SCREEN_RAM+5+xpos+ypos*40
     lda #11
-    sta $d805+xpos+ypos*40
+    sta COLOR_RAM+5+xpos+ypos*40
 dr_6_2:
     clc
     txa
@@ -556,15 +556,15 @@ dr_6_2:
     tax
     bcc dr_7_1
     lda #90
-    sta $0406+xpos+ypos*40
+    sta SCREEN_RAM+6+xpos+ypos*40
     lda #02
-    sta $d806+xpos+ypos*40
+    sta COLOR_RAM+6+xpos+ypos*40
     jmp dr_7_2
 dr_7_1:
     lda #94
-    sta $0406+xpos+ypos*40
+    sta SCREEN_RAM+6+xpos+ypos*40
     lda #11
-    sta $d806+xpos+ypos*40
+    sta COLOR_RAM+6+xpos+ypos*40
 dr_7_2:
     clc
     txa
@@ -572,125 +572,117 @@ dr_7_2:
     tax
     bcc dr_8_1
     lda #90
-    sta $0407+xpos+ypos*40
+    sta SCREEN_RAM+7+xpos+ypos*40
     lda #02
-    sta $d807+xpos+ypos*40
+    sta COLOR_RAM+7+xpos+ypos*40
     jmp dr_8_2
 dr_8_1:
     lda #94
-    sta $0407+xpos+ypos*40
+    sta SCREEN_RAM+7+xpos+ypos*40
     lda #11
-    sta $d807+xpos+ypos*40
+    sta COLOR_RAM+7+xpos+ypos*40
 dr_8_2:
+    pla
 }
 
 ////////////////////////////////////////////////////
 // refresh pattern
 refresh_pattern:
-
     lda #$20 // Clear pattern area
     ldx #$00
 rp_loop1:
-    sta $400+11*40+1,x // POS Column
-    sta $400+12*40+1,x
-    sta $400+13*40+1,x
-    sta $400+14*40+1,x
-    sta $400+15*40+1,x
-    sta $400+16*40+1,x
-    sta $400+17*40+1,x
-    sta $400+18*40+1,x
-    sta $400+19*40+1,x
-    sta $400+20*40+1,x
-    sta $400+21*40+1,x
-    sta $400+22*40+1,x
-    sta $400+23*40+1,x
-
-    sta $400+11*40+17,x // VA Column
-    sta $400+12*40+17,x
-    sta $400+13*40+17,x
-    sta $400+14*40+17,x
-    sta $400+15*40+17,x
-    sta $400+16*40+17,x
-    sta $400+17*40+17,x
-    sta $400+18*40+17,x
-    sta $400+19*40+17,x
-    sta $400+20*40+17,x
-    sta $400+21*40+17,x
-    sta $400+22*40+17,x
-    sta $400+23*40+17,x    
+    sta SCREEN_RAM+11*40+1,x // POS Column
+    sta SCREEN_RAM+12*40+1,x
+    sta SCREEN_RAM+13*40+1,x
+    sta SCREEN_RAM+14*40+1,x
+    sta SCREEN_RAM+15*40+1,x
+    sta SCREEN_RAM+16*40+1,x
+    sta SCREEN_RAM+17*40+1,x
+    sta SCREEN_RAM+18*40+1,x
+    sta SCREEN_RAM+19*40+1,x
+    sta SCREEN_RAM+20*40+1,x
+    sta SCREEN_RAM+21*40+1,x
+    sta SCREEN_RAM+22*40+1,x
+    sta SCREEN_RAM+23*40+1,x
+    sta SCREEN_RAM+11*40+17,x // VA Column
+    sta SCREEN_RAM+12*40+17,x
+    sta SCREEN_RAM+13*40+17,x
+    sta SCREEN_RAM+14*40+17,x
+    sta SCREEN_RAM+15*40+17,x
+    sta SCREEN_RAM+16*40+17,x
+    sta SCREEN_RAM+17*40+17,x
+    sta SCREEN_RAM+18*40+17,x
+    sta SCREEN_RAM+19*40+17,x
+    sta SCREEN_RAM+20*40+17,x
+    sta SCREEN_RAM+21*40+17,x
+    sta SCREEN_RAM+22*40+17,x
+    sta SCREEN_RAM+23*40+17,x    
     inx
     cpx #$04
     bne rp_loop1
     ldx#$00
 rp_loop2:
-    sta $400+11*40+6,x // RELAY Column
-    sta $400+12*40+6,x
-    sta $400+13*40+6,x
-    sta $400+14*40+6,x
-    sta $400+15*40+6,x
-    sta $400+16*40+6,x
-    sta $400+17*40+6,x
-    sta $400+18*40+6,x
-    sta $400+19*40+6,x
-    sta $400+20*40+6,x
-    sta $400+21*40+6,x
-    sta $400+22*40+6,x
-    sta $400+23*40+6,x
+    sta SCREEN_RAM+11*40+6,x // RELAY Column
+    sta SCREEN_RAM+12*40+6,x
+    sta SCREEN_RAM+13*40+6,x
+    sta SCREEN_RAM+14*40+6,x
+    sta SCREEN_RAM+15*40+6,x
+    sta SCREEN_RAM+16*40+6,x
+    sta SCREEN_RAM+17*40+6,x
+    sta SCREEN_RAM+18*40+6,x
+    sta SCREEN_RAM+19*40+6,x
+    sta SCREEN_RAM+20*40+6,x
+    sta SCREEN_RAM+21*40+6,x
+    sta SCREEN_RAM+22*40+6,x
+    sta SCREEN_RAM+23*40+6,x
     inx
     cpx#$0a
     bne rp_loop2
     ldx #$00
 rp_loop3:
-    sta $400+11*40+22,x // Command Column
-    sta $400+12*40+22,x
-    sta $400+13*40+22,x
-    sta $400+14*40+22,x
-    sta $400+15*40+22,x
-    sta $400+16*40+22,x
-    sta $400+17*40+22,x
-    sta $400+18*40+22,x
-    sta $400+19*40+22,x
-    sta $400+20*40+22,x
-    sta $400+21*40+22,x
-    sta $400+22*40+22,x
-    sta $400+23*40+22,x
+    sta SCREEN_RAM+11*40+22,x // Command Column
+    sta SCREEN_RAM+12*40+22,x
+    sta SCREEN_RAM+13*40+22,x
+    sta SCREEN_RAM+14*40+22,x
+    sta SCREEN_RAM+15*40+22,x
+    sta SCREEN_RAM+16*40+22,x
+    sta SCREEN_RAM+17*40+22,x
+    sta SCREEN_RAM+18*40+22,x
+    sta SCREEN_RAM+19*40+22,x
+    sta SCREEN_RAM+20*40+22,x
+    sta SCREEN_RAM+21*40+22,x
+    sta SCREEN_RAM+22*40+22,x
+    sta SCREEN_RAM+23*40+22,x
     inx
     cpx #$09
     bne rp_loop3
     ldx #$00
 rp_loop4:
-    sta $400+11*40+32,x // Command DATA Column
-    sta $400+12*40+32,x
-    sta $400+13*40+32,x
-    sta $400+14*40+32,x
-    sta $400+15*40+32,x
-    sta $400+16*40+32,x
-    sta $400+17*40+32,x
-    sta $400+18*40+32,x
-    sta $400+19*40+32,x
-    sta $400+20*40+32,x
-    sta $400+21*40+32,x
-    sta $400+22*40+32,x
-    sta $400+23*40+32,x
+    sta SCREEN_RAM+11*40+32,x // Command DATA Column
+    sta SCREEN_RAM+12*40+32,x
+    sta SCREEN_RAM+13*40+32,x
+    sta SCREEN_RAM+14*40+32,x
+    sta SCREEN_RAM+15*40+32,x
+    sta SCREEN_RAM+16*40+32,x
+    sta SCREEN_RAM+17*40+32,x
+    sta SCREEN_RAM+18*40+32,x
+    sta SCREEN_RAM+19*40+32,x
+    sta SCREEN_RAM+20*40+32,x
+    sta SCREEN_RAM+21*40+32,x
+    sta SCREEN_RAM+22*40+32,x
+    sta SCREEN_RAM+23*40+32,x
     inx
     cpx #$07
     bne rp_loop4
-
     // Done clearing, now draw pattern
-
     // current_pattern
     // pattern_cursor
-    
     // pattern_block_start
     // pattern_block_end
     // pattern is 256 bytes (relay data)
     //            256 bytes (command data)
-    //            256 bytes (command data data)
-    //            256 bytes (future data)
-
     // 13 shown pattern values on screen
     // 7 is the cursor position
-
 rp_v1:
     clc
     lda pattern_cursor
@@ -703,8 +695,6 @@ rp_v1_2:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,11)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,11)
 rp_v2:
     clc
@@ -718,8 +708,6 @@ rp_v2_2:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,12)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,12)
 rp_v3:
     clc
@@ -733,8 +721,6 @@ rp_v3_2:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,13)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,13)
 rp_v4:
     clc
@@ -748,8 +734,6 @@ rp_v4_2:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,14)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,14)
 rp_v5:
     clc
@@ -763,8 +747,6 @@ rp_v5_2:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,15)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,15)
 rp_v6:
     clc
@@ -778,8 +760,6 @@ rp_v6_2:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,16)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,16)
 rp_v7:
     lda pattern_cursor
@@ -788,8 +768,6 @@ rp_v7:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,17)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,17)
 rp_v8:
     clc
@@ -803,8 +781,6 @@ rp_v8_2:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,18)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,18)
 rp_v9:
     clc
@@ -818,8 +794,6 @@ rp_v9_2:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,19)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,19)
 rp_v10:
     clc
@@ -833,8 +807,6 @@ rp_v10_2:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,20)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,20)
 rp_v11:
     clc
@@ -848,8 +820,6 @@ rp_v11_2:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,21)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,21)
 rp_v12:
     clc
@@ -863,8 +833,6 @@ rp_v12_2:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,22)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,22)
 rp_v13:
     clc
@@ -878,8 +846,6 @@ rp_v13_2:
     ldx #$00
     lda (pattern_block,x)
     DrawRelays(7,23)
-    ldx #$00
-    lda (pattern_block,x)
     PrintHex(18,23)
 rp_v14:
     rts
@@ -887,77 +853,63 @@ rp_v14:
 ////////////////////////////////////////////////////
 // refresh track blocks
 refresh_track_blocks:
-
     lda #$20 // Clear Track Blocks Area
     ldx #$00
 rtb_loop1:
-    sta $400+3*40,x
-    sta $400+4*40,x
-    sta $400+5*40,x
+    sta SCREEN_RAM+3*40,x
+    sta SCREEN_RAM+4*40,x
+    sta SCREEN_RAM+5*40,x
     inx
     cpx #$07
     bne rtb_loop1
-
     // Done clearing track blocks area
-
     ldx track_block_cursor
     dex
     cpx #$ff
     beq rtb_skip_top
-    
     lda #58
-    sta $400+3+3*40
-
+    sta SCREEN_RAM+3+3*40
     txa
-    PrintHex(1,3)
+    PrintHex(1,3) // print track -1
     ldx track_block_cursor
     dex
     lda track_block,x
-    PrintHex(4,3)
-
+    PrintHex(4,3) // print pattern of track -1
 rtb_skip_top:
-
     lda #58
-    sta $400+3+4*40
-    
+    sta SCREEN_RAM+3+4*40
     ldx track_block_cursor
     txa
-    PrintHex(1,4)
+    PrintHex(1,4) // print track
     ldx track_block_cursor
     lda track_block,x
-    PrintHex(4,4)
-    ldx track_block_cursor
-    lda track_block,x
-    PrintHex(16,3)
-
+    PrintHex(4,4) // print pattern in track area
+    PrintHex(16,3) // print pattern in pattern area
     lda #58
-    sta $400+3+5*40
-
+    sta SCREEN_RAM+3+5*40
     ldx track_block_cursor
     inx
     txa
-    PrintHex(1,5)
+    PrintHex(1,5) // print track +1
     ldx track_block_cursor
     inx
     lda track_block,x
-    PrintHex(4,5)
-
-    ldx #$00
+    PrintHex(4,5) // print pattern of track +1
+    ldx #$00 // reverse the track cursor location
 rtb_rev:
-    lda $400+4*40,x
+    lda SCREEN_RAM+4*40,x
     adc #$80
-    sta $400+4*40,x
-    lda #$01
-    sta $d800+4*40,x
+    sta SCREEN_RAM+4*40,x
+    lda #$01 // and color
+    sta COLOR_RAM+4*40,x // it white
     inx
-    cpx #$07
+    cpx #$07 // only do 7 characters
     bne rtb_rev
     rts
 
 ////////////////////////////////////////////////////
 // change filename
 change_filename:
-
     ldx #$00 // Reverse the editing area
 fn_reverse:
     lda filename,x
@@ -968,13 +920,10 @@ fn_reverse:
     inx
     cpx #$10
     bne fn_reverse
-
 fn_kb_chk: // Check Keyboard loop
-
     lda #$55    // Check raster and flash the cursor
     cmp VIC_RASTER_COUNTER
     bne fn_kb_chk_no_crs
-
     ldx filename_cursor
     lda filename,x
     cmp #$80
@@ -985,23 +934,18 @@ fn_kb_chk: // Check Keyboard loop
 fn_kb_chk_crs_not_revd:
     and #$7f
     sta filename,x
-
 fn_kb_chk_no_crs: // End of flash cursor stuff
-
     ldx filename_cursor
     cpx #$10
     bne fn_kb_not_too_long
     ldx #$0f
     stx filename_cursor
 fn_kb_not_too_long:
-
     jsr KERNAL_GETIN
     cmp #$00
     beq fn_kb_chk
-
     cmp #13
     beq fn_kb_chk_end
-
     cmp #20
     bne fn_kb_chk_not_del
     ldx filename_cursor
@@ -1016,7 +960,6 @@ fn_kb_chk_del_first_pos:
     lda #$a0
     sta filename
     jmp fn_kb_chk
-
 fn_kb_chk_not_del:
     cmp #64
     bcc fn_kb_num
@@ -1027,10 +970,8 @@ fn_kb_num:
     sta filename,x
     inc filename_cursor
     jmp fn_kb_chk
-     
 fn_kb_chk_end:
     ldx #00
-
 fn_rereverse:   // Done editing, re-reverse all the characters
     lda filename,x
     and #$7f
@@ -1040,7 +981,6 @@ fn_rereverse:   // Done editing, re-reverse all the characters
     cpx #$10
     bne fn_rereverse
     ldx #$00
-
     ldx #$0f // fill in spaces on end with 0 (start at end and work backward)
 fn_trim:
     lda filename_buffer,x
@@ -1050,7 +990,6 @@ fn_trim:
     sta filename_buffer,x
     dex
     jmp fn_trim
-
 fn_out:
     rts
 
@@ -1099,33 +1038,33 @@ cd_5:
 ////////////////////////////////////////////////////
 // show directory
 show_directory:
-    lda #$01
-    sta $0286
-    jsr $e544      // clear screen
+    ClearScreen(BLACK)
     lda #$01
     ldx #<dirname
     ldy #>dirname
     jsr KERNAL_SETNAM // set filename "$"
     lda drive
-    sta $ba
+    sta DEVICE_NUMBER
     lda #$60
-    sta $b9        // secondary chn
+    sta SECONDARY_ADDRESS // secondary chn
     jsr $f3d5      // open for serial bus devices
     jsr $f219      // set input device
     ldy #$04
 labl1:
-    jsr $ee13      // input byte on serial bus
+    jsr SERIAL_READ_BYTE // input byte on serial bus
     dey
     bne labl1      // get rid of y bytes
     lda $c6        // key pressed?
     ora $90        // or eof?
     bne labl2      // if yes exit
-    jsr $ee13      // now get in ax the dimension
+    jsr SERIAL_READ_BYTE // now get in ax the dimension
     tax            // of the file
-    jsr $ee13
+    jsr SERIAL_READ_BYTE
     jsr $bdcd      // print number from ax
+    lda #$20
+    jsr KERNAL_CHROUT
 labl3:
-    jsr $ee13      // now the filename
+    jsr SERIAL_READ_BYTE // now the filename
     jsr $e716      // put a character to screen
     bne labl3      // while not 0 encountered
     jsr $aad7      // put a cr , end line
@@ -1134,23 +1073,21 @@ labl3:
 labl2:
     jsr $f642      // close serial bus device
     jsr $f6f3      // restore i/o devices to default
-
     lda #13
     jsr KERNAL_CHROUT
     jsr show_drive_status
-
     ldx #$00
 labl22:
     lda dir_presskey,x
     beq labl4
     jsr KERNAL_CHROUT
     inx
-    jmp labl22        
-
+    jmp labl22
 labl4:
-    jsr $f142      // w8 a key
+    jsr KERNAL_WAIT_KEY
     beq labl4
     rts
+
 dirname:
 .text "$"
 dir_presskey:
@@ -1162,11 +1099,7 @@ dir_presskey:
 ////////////////////////////////////////////////////
 // save file
 save_file:
-
-    lda #$01
-    sta $0286
-    jsr $e544      // clear screen
-
+    ClearScreen(BLACK)
     ldx #$00
 sv_labl1:
     lda save_saving,x
@@ -1174,7 +1107,6 @@ sv_labl1:
     sta SCREEN_RAM,x
     inx
     jmp sv_labl1
-    
     ldx #$00
 sv_labl0:
     lda #$00
@@ -1206,36 +1138,30 @@ sv_dont_add:
     jmp sv_labl4
 sv_labl5:
     stx filename_length
-
 .var tmpalow = $fb 
 .var tmpahigh = $fc 
 .var savefrom = $4000 
 .var saveto   = $9fff 
-
-   lda #$0f
-   ldx drive
-   ldy #$ff
-   jsr KERNAL_SETLFS
-    
-   lda filename_length //#$10
-   ldx #<filename_save
-   ldy #>filename_save
-   jsr KERNAL_SETNAM
-    
-   lda #<savefrom // Set Start Address
-   sta tmpalow
-   lda #>savefrom
-   sta tmpahigh
-   ldx #<saveto // Set End Address 
-   ldy #>saveto 
-   lda #<tmpalow
-   jsr KERNAL_SAVE 
-
+    lda #$0f
+    ldx drive
+    ldy #$ff
+    jsr KERNAL_SETLFS
+    lda filename_length //#$10
+    ldx #<filename_save
+    ldy #>filename_save
+    jsr KERNAL_SETNAM
+    lda #<savefrom // Set Start Address
+    sta tmpalow
+    lda #>savefrom
+    sta tmpahigh
+    ldx #<saveto // Set End Address 
+    ldy #>saveto 
+    lda #<tmpalow
+    jsr KERNAL_SAVE 
     lda #13
     jsr KERNAL_CHROUT
     jsr KERNAL_CHROUT
     jsr show_drive_status
-
     ldx #$00
 sv_labl22:
     lda dir_presskey,x
@@ -1244,7 +1170,7 @@ sv_labl22:
     inx
     jmp sv_labl22
 sv_out:
-    jsr $f142      // w8 a key
+    jsr KERNAL_WAIT_KEY
     beq sv_out
     jsr draw_screen
     rts
@@ -1257,11 +1183,7 @@ save_saving:
 ////////////////////////////////////////////////////
 // load file
 load_file:
-
-    lda #$01
-    sta $0286
-    jsr $e544      // clear screen
-
+    ClearScreen(BLACK)
     ldx #$00
 ld_labl1:
     lda load_loading,x
@@ -1269,7 +1191,6 @@ ld_labl1:
     sta SCREEN_RAM,x
     inx
     jmp ld_labl1
-    
     ldx #$00
 ld_labl0:
     lda #$00
@@ -1301,29 +1222,23 @@ ld_dont_add:
     jmp ld_labl4
 ld_labl5:
     stx filename_length
-
 .var loadto   = $4000 
-
-   lda #$0f
-   ldx drive
-   ldy #$ff
-   jsr KERNAL_SETLFS
-    
-   lda filename_length //#$10
-   ldx #<filename_save
-   ldy #>filename_save
-   jsr KERNAL_SETNAM
-    
-   ldx #<loadto // Set End Address
-   ldy #>loadto 
-   lda #00
-   jsr KERNAL_LOAD
-
+    lda #$0f
+    ldx drive
+    ldy #$ff
+    jsr KERNAL_SETLFS
+    lda filename_length //#$10
+    ldx #<filename_save
+    ldy #>filename_save
+    jsr KERNAL_SETNAM
+    ldx #<loadto // Set End Address
+    ldy #>loadto 
+    lda #00
+    jsr KERNAL_LOAD
     lda #13
     jsr KERNAL_CHROUT
     jsr KERNAL_CHROUT
     jsr show_drive_status
-
     ldx #$00
 ld_labl22:
     lda dir_presskey,x
@@ -1332,7 +1247,7 @@ ld_labl22:
     inx
     jmp ld_labl22
 ld_out:
-    jsr $f142      // w8 a key
+    jsr KERNAL_WAIT_KEY
     beq ld_out
     jsr draw_screen
     rts
@@ -1342,32 +1257,28 @@ load_loading:
 .text "loading "
 .byte 0
 
-
 ////////////////////////////////////////////////////
 // show drive status
 show_drive_status:
     lda #$00
     sta $90       // clear status flags
-
-    lda drive       // device number
+    lda drive     // device number
     jsr $ffb1     // call listen
     lda #$6f      // secondary address 15 (command channel)
     jsr $ff93     // call seclsn (second)
     jsr $ffae     // call unlsn
     lda $90       // get status flags
-    bne sds_devnp    // device not present
-
-    lda drive       // device number
+    bne sds_devnp // device not present
+    lda drive     // device number
     jsr $ffb4     // call talk
     lda #$6f      // secondary address 15 (error channel)
     jsr $ff96     // call sectlk (tksa)
-
 sds_loop:
     lda $90       // get status flags
-    bne sds_eof      // either eof or error
+    bne sds_eof   // either eof or error
     jsr $ffa5     // call iecin (get byte from iec bus)
     jsr $ffd2     // call chrout (print byte to screen)
-    jmp sds_loop     // next byte
+    jmp sds_loop  // next byte
 sds_eof:
     jsr $ffab     // call untlk
     rts
@@ -1376,32 +1287,17 @@ sds_devnp:
     rts
 
 ////////////////////////////////////////////////////
-// Draw Current Relay
+// Update / Draw Current Relay
+update_current_relays:
 draw_current_relays:
     jsr calculate_pattern_block
     ldx #$00
-    lda (pattern_block,x)
-    eor #$ff    // relay block is actually inverse of what is shown on screen
-    sta $dd01   // Set Actual USER Port relays
-    ldx #$00
-    lda (pattern_block,x)
-    DrawRelays(7,17)
-    ldx #$00
-    lda (pattern_block,x)
-    DrawRelays(31,0)
-    ldx #$00
-    lda (pattern_block,x)
-    PrintHex(18,17)
-/*
-    ldx #$00
-dcr_rev:
-    lda $400+17*40+6,x
-    adc #$80
-    sta $400+17*40+6,x
-    inx
-    cpx#$0a
-    bne dcr_rev
-   */
+    lda (pattern_block,x) // Load the value from memory
+    DrawRelays(7,17)      // Draw current relay at top right of screen
+    DrawRelays(31,0)      // Draw current relay at current in track pattern cursor position
+    PrintHex(18,17)       // Print hex value of current relay in track pattern cursor position
+    eor #$ff              // Relay block is actually inverse of what is shown on screen
+    sta USER_PORT_DATA    // Set Actual USER Port relays
     rts
 
 ////////////////////////////////////////////////////
@@ -1627,12 +1523,10 @@ all_relay_on:
 ///////////////////////////////////////////////////
 // Calculate pattern block
 calculate_pattern_block:
-
     lda pattern_cursor
     sta pattern_block_lo
     lda #$41
     sta pattern_block_hi
-
     ldx track_block_cursor
     lda track_block,x
     tax
@@ -1647,14 +1541,11 @@ cpb_1:
     beq cpb_2    
     jmp cpb_1
 cpb_2:
-
     lda pattern_block_lo
     PrintHex(4,24)
     lda pattern_block_hi
     PrintHex(2,24)
-
-    ldx #$00
-    lda (pattern_block,x)
-    PrintHex(8,24)
-
     rts
+
+// END OF PROGRAM
+///////////////////////////////////////////////////
