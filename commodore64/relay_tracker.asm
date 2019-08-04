@@ -147,6 +147,7 @@ check_colon_nope:
     jsr refresh_track_blocks
     jsr calculate_pattern_block
     jsr refresh_pattern
+    jsr draw_current_relays
     jmp mainloop
 //////////////////////////////////////////////////
 // SEMICOLON (Change Pattern UP)
@@ -162,6 +163,7 @@ check_semicolon_nope:
     jsr refresh_track_blocks
     jsr calculate_pattern_block
     jsr refresh_pattern
+    jsr draw_current_relays
     jmp mainloop
 //////////////////////////////////////////////////
 // 1 (Set Relay 1)
@@ -269,6 +271,7 @@ check_f1_hit:
     jsr refresh_track_blocks
     jsr calculate_pattern_block
     jsr refresh_pattern
+    jsr draw_current_relays
 check_f1_hit_too_high:
     jmp mainloop
 //////////////////////////////////////////////////
@@ -288,6 +291,7 @@ chk_f2_nope:
     jsr calculate_pattern_block
     jsr refresh_track_blocks
     jsr refresh_pattern
+    jsr draw_current_relays
     jmp mainloop
 //////////////////////////////////////////////////
 // F3 (Move Track Position DOWN)
@@ -301,6 +305,7 @@ check_f3_hit:
     jsr refresh_track_blocks
     jsr calculate_pattern_block
     jsr refresh_pattern
+    jsr draw_current_relays
 check_f3_hit_too_low:
     jmp mainloop
 //////////////////////////////////////////////////
@@ -320,6 +325,7 @@ chk_f4_nope:
     jsr calculate_pattern_block
     jsr refresh_track_blocks
     jsr refresh_pattern
+    jsr draw_current_relays
     jmp mainloop
 //////////////////////////////////////////////////
 // F5 (Page UP in current Pattern)
@@ -454,7 +460,7 @@ new_data:
     pha
     lda #$00
     sta zp_pointer_lo
-    lda #pattern_block_start_hi
+    lda #tracker_data_start_hi
     sta zp_pointer_hi
     ldx #$00
 clrloop:
@@ -476,7 +482,7 @@ clrloop:
     bne clrloop
     inc zp_pointer_hi
     lda zp_pointer_hi
-    cmp #pattern_block_end_hi
+    cmp #tracker_data_end_hi
     bne clrloop
     pla
     rts
@@ -956,8 +962,7 @@ rtb_skip_top:
 // track 0
     lda #58 // put :
     sta SCREEN_RAM+3+4*40
-    ldx track_block_cursor
-    txa
+    lda track_block_cursor
     PrintHex(1,4) // print track
     ldx track_block_cursor
     lda track_block,x
