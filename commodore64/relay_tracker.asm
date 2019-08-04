@@ -634,6 +634,7 @@ draw_jcm:
     cmp #$00
     beq jcm_is_zero
     clc
+    clc
     lda joystick_control_mode
     rol
     rol
