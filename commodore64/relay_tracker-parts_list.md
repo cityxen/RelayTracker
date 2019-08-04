@@ -1,7 +1,7 @@
 Parts List:
 
 Schematic
-https://raw.githubusercontent.com/cityxen/RelayTracker/master/c64/relay_tracker-schematic.jpg
+https://raw.githubusercontent.com/cityxen/RelayTracker/master/commodore64/relay_tracker-schematic.jpg
 
 Commodore User Port Connector
 https://amzn.to/2xAYMCI

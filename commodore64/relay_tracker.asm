@@ -89,8 +89,25 @@ check_e_hit:
 // F (Change Filename)
 check_f_hit:
     cmp #$46
-    bne check_l_hit
+    bne check_j_hit
     jsr change_filename
+    jmp mainloop
+//////////////////////////////////////////////////
+// J (Toggle Joystick Control Mode)
+check_j_hit:
+    cmp #$4a
+    bne check_l_hit
+    clc
+    lda joystick_control_mode
+    cmp #max_joystick_control_modes
+    beq chk_j_wut
+    inc joystick_control_mode
+    jmp chk_j_done
+chk_j_wut:
+    lda #$00
+    sta joystick_control_mode
+chk_j_done:
+    jsr draw_jcm
     jmp mainloop
 //////////////////////////////////////////////////
 // L (Load File)
@@ -98,7 +115,7 @@ check_l_hit:
     cmp #$4c
     bne check_n_hit
     jsr load_file
-    jmp mainloop    
+    jmp mainloop
 //////////////////////////////////////////////////
 // N (New Data)
 check_n_hit:
@@ -252,11 +269,18 @@ check_f1_hit:
 check_f1_hit_too_high:
     jmp mainloop
 //////////////////////////////////////////////////
-// F2 (Pattern UP)
+// F2 (Track Length DOWN)
 check_f2_hit:
     cmp #$89
     bne check_f3_hit
-    // TODO: Pattern UP
+    lda track_block_length
+    cmp #$00
+    beq chk_f2_nope
+    dec track_block_length
+    lda track_block_length
+    sta track_block_cursor
+chk_f2_nope:
+    jsr refresh_track_blocks
     jmp mainloop
 //////////////////////////////////////////////////
 // F3 (Move Track Position DOWN)
@@ -264,7 +288,7 @@ check_f3_hit:
     cmp #$86
     bne check_f4_hit
     lda track_block_cursor
-    cmp #$ff
+    cmp track_block_length
     beq check_f3_hit_too_low
     inc track_block_cursor
     jsr refresh_track_blocks
@@ -273,11 +297,18 @@ check_f3_hit:
 check_f3_hit_too_low:
     jmp mainloop
 //////////////////////////////////////////////////
-// F4 (Pattern DOWN)
+// F4 (Track Length UP)
 check_f4_hit:
     cmp #$8a
     bne check_f5_hit
-    // TODO: Pattern DOWN
+    lda track_block_length
+    cmp #$ff
+    beq chk_f4_nope
+    inc track_block_length
+    lda track_block_length
+    sta track_block_cursor
+chk_f4_nope:
+    jsr refresh_track_blocks
     jmp mainloop
 //////////////////////////////////////////////////
 // F5 (Page UP in current Pattern)
@@ -397,7 +428,11 @@ init_fn_loop:
     sta pattern_cursor
     lda pattern_cursor
     sta pattern_block
+    lda #$00
+    sta track_block_length
     jsr calculate_pattern_block
+    lda #$00
+    sta joystick_control_mode
     rts
 initial_filename:
 .text "filename.rtd"
@@ -584,6 +619,45 @@ dr_8_1:
 dr_8_2:
     pla
 }
+
+////////////////////////////////////////////////////
+// refresh_jcm
+refresh_jcm:
+draw_jcm:
+    // 0 = OFF: off
+    // 1 = PLAY MODE: Joystick button plays
+    // 2 = FREESTYLE MODE: Joystick directions toggle relays 1-4 directions + button toggle relays 5-8
+    // 3 = TRACKER MODE: Joystick UP and DOWN control play of tracker
+    // 4 = EDIT
+    clc
+    lda joystick_control_mode
+    cmp #$00
+    beq jcm_is_zero
+    clc
+    lda joystick_control_mode
+    rol
+    rol
+jcm_is_zero:
+    tax
+    lda jcm_modes_text,x
+    sta SCREEN_RAM+11+24*40
+    inx
+    lda jcm_modes_text,x
+    sta SCREEN_RAM+1+11+24*40
+    inx
+    lda jcm_modes_text,x
+    sta SCREEN_RAM+2+11+24*40
+    inx
+    lda jcm_modes_text,x
+    sta SCREEN_RAM+3+11+24*40
+    rts
+
+jcm_modes_text:
+.text "off "
+.text "play"
+.text "free"
+.text "trak"
+.text "edit"
 
 ////////////////////////////////////////////////////
 // refresh pattern
@@ -863,11 +937,13 @@ rtb_loop1:
     cpx #$07
     bne rtb_loop1
     // Done clearing track blocks area
+
+// track -1
     ldx track_block_cursor
     dex
     cpx #$ff
     beq rtb_skip_top
-    lda #58
+    lda #58 // put :
     sta SCREEN_RAM+3+3*40
     txa
     PrintHex(1,3) // print track -1
@@ -876,7 +952,8 @@ rtb_loop1:
     lda track_block,x
     PrintHex(4,3) // print pattern of track -1
 rtb_skip_top:
-    lda #58
+// track 0
+    lda #58 // put :
     sta SCREEN_RAM+3+4*40
     ldx track_block_cursor
     txa
@@ -885,7 +962,12 @@ rtb_skip_top:
     lda track_block,x
     PrintHex(4,4) // print pattern in track area
     PrintHex(16,3) // print pattern in pattern area
-    lda #58
+
+// track +1
+    ldx track_block_cursor
+    cpx track_block_length
+    beq rtb_skip_bot
+    lda #58 // put :
     sta SCREEN_RAM+3+5*40
     ldx track_block_cursor
     inx
@@ -895,6 +977,8 @@ rtb_skip_top:
     inx
     lda track_block,x
     PrintHex(4,5) // print pattern of track +1
+rtb_skip_bot:
+    clc
     ldx #$00 // reverse the track cursor location
 rtb_rev:
     lda SCREEN_RAM+4*40,x
@@ -908,7 +992,7 @@ rtb_rev:
     rts
 
 ////////////////////////////////////////////////////
-// change filename
+// Change Filename
 change_filename:
     ldx #$00 // Reverse the editing area
 fn_reverse:
@@ -994,7 +1078,7 @@ fn_out:
     rts
 
 ////////////////////////////////////////////////////
-// change drive
+// Change Drive
 change_drive:
     inc drive
 show_drive:
@@ -1036,7 +1120,7 @@ cd_5:
     jmp change_drive
 
 ////////////////////////////////////////////////////
-// show directory
+// Show Disk Directory
 show_directory:
     ClearScreen(BLACK)
     lda #$01
@@ -1097,7 +1181,7 @@ dir_presskey:
 .byte 0
 
 ////////////////////////////////////////////////////
-// save file
+// Save File
 save_file:
     ClearScreen(BLACK)
     ldx #$00
@@ -1181,7 +1265,7 @@ save_saving:
 .byte 0
 
 ////////////////////////////////////////////////////
-// load file
+// Load File
 load_file:
     ClearScreen(BLACK)
     ldx #$00
@@ -1258,7 +1342,7 @@ load_loading:
 .byte 0
 
 ////////////////////////////////////////////////////
-// show drive status
+// Show Drive Status
 show_drive_status:
     lda #$00
     sta $90       // clear status flags
@@ -1525,7 +1609,7 @@ all_relay_on:
 calculate_pattern_block:
     lda pattern_cursor
     sta pattern_block_lo
-    lda #$41
+    lda #pattern_block_start_hi
     sta pattern_block_hi
     ldx track_block_cursor
     lda track_block,x
