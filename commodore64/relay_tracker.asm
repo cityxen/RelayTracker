@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker
 //
-// Version: 1.3
+// Version: 1.4
 // Author: Deadline
 //
 // 2019 CityXen
@@ -20,6 +20,9 @@
 // https://www.youtube.com/watch?v=R9VE2U_p060
 //
 //////////////////////////////////////////////////////////////////////////
+.segment Code []
+.file [name="relaytracker.prg",segments="Code"]
+.disk [filename="relaytracker.d64", name="RELAYTRACKER", id="CXN19" ] { [name="RELAYTRACKER", type="prg",  segments="Code"] }
 
 *=$2ff0 "constants"
 #import "../../Commodore64_Programming/include/Constants.asm"
@@ -65,11 +68,11 @@ check_dollar_hit:
     jsr draw_screen
     jmp mainloop
 //////////////////////////////////////////////////////////
-// C (Change Speed)
+// C (Change Command)
 check_c_hit:
     cmp #$43
     bne check_d_hit
-    // TODO: Change speed
+    // TODO: Change Command
     jmp mainloop
 //////////////////////////////////////////////////
 // D (Change Drive)
@@ -122,7 +125,7 @@ check_l_hit:
 check_n_hit:
     cmp #$4e
     bne check_s_hit
-    jsr new_data
+    jsr new_data_confirm
     jsr draw_screen
     jmp mainloop
 //////////////////////////////////////////////////
@@ -171,7 +174,6 @@ check_1_hit:
     cmp #$31
     bne check_2_hit
     jsr toggle_relay_1
-    // jsr calculate_pattern_block
     jmp mainloop
 //////////////////////////////////////////////////
 // 2 (Set Relay 2)
@@ -179,7 +181,6 @@ check_2_hit:
     cmp #$32
     bne check_3_hit
     jsr toggle_relay_2
-    // jsr calculate_pattern_block
     jmp mainloop
 //////////////////////////////////////////////////
 // 3 (Set Relay 3)
@@ -187,7 +188,6 @@ check_3_hit:
     cmp #$33
     bne check_4_hit
     jsr toggle_relay_3
-    jsr calculate_pattern_block
     jmp mainloop
 //////////////////////////////////////////////////
 // 4 (Set Relay 4)
@@ -195,7 +195,6 @@ check_4_hit:
     cmp #$34
     bne check_5_hit
     jsr toggle_relay_4
-    // jsr calculate_pattern_block
     jmp mainloop
 //////////////////////////////////////////////////
 // 5 (Set Relay 5)
@@ -203,7 +202,6 @@ check_5_hit:
     cmp #$35
     bne check_6_hit
     jsr toggle_relay_5
-    // jsr calculate_pattern_block
     jmp mainloop
 //////////////////////////////////////////////////
 // 6 (Set Relay 6)
@@ -211,7 +209,6 @@ check_6_hit:
     cmp #$36
     bne check_7_hit
     jsr toggle_relay_6
-    // jsr calculate_pattern_block
     jmp mainloop
 //////////////////////////////////////////////////
 // 7 (Set Relay 7)
@@ -219,7 +216,6 @@ check_7_hit:
     cmp #$37
     bne check_8_hit
     jsr toggle_relay_7
-    // jsr calculate_pattern_block
     jmp mainloop
 //////////////////////////////////////////////////
 // 8 (Set Relay 8)
@@ -227,7 +223,6 @@ check_8_hit:
     cmp #$38
     bne check_minus_hit
     jsr toggle_relay_8
-    // jsr calculate_pattern_block
     jmp mainloop
 //////////////////////////////////////////////////
 // MINUS (Turn OFF all relays)
@@ -235,22 +230,13 @@ check_minus_hit:
     cmp #$2d
     bne check_plus_hit
     jsr all_relay_off
-    // jsr calculate_pattern_block
     jmp mainloop
 //////////////////////////////////////////////////
 // PLUS (Turn ON all relays)
 check_plus_hit:
     cmp #$2b
-    bne check_star_hit
-    jsr all_relay_on
-    // jsr calculate_pattern_block
-    jmp mainloop
-//////////////////////////////////////////////////
-// STAR (Change Command)
-check_star_hit:
-    cmp #$38
     bne check_equal_hit
-    // TODO: Change Command
+    jsr all_relay_on
     jmp mainloop
 //////////////////////////////////////////////////
 // EQUAL (Change Command Value)
@@ -456,6 +442,17 @@ initial_filename:
 
 ////////////////////////////////////////////////////
 // New Data
+new_data_confirm:
+    jsr draw_confirm_question
+ndc_loop2:
+    jsr KERNAL_GETIN
+    cmp #$00
+    beq ndc_loop2
+ndc_check_y_hit: // Y (Yes New Memory)
+    cmp #$59
+    beq new_data
+    jsr draw_screen
+    rts
 new_data:
     pha
     lda #$00
@@ -488,17 +485,45 @@ clrloop:
     rts
 
 ////////////////////////////////////////////////////
+// Draw Confirm Question
+draw_confirm_question:
+    ldy #$02
+    ldx #$00
+ndc_loop:
+    lda confirm_text,x
+    sta SCREEN_RAM+12+11*40,x
+    tya
+    sta COLOR_RAM+12+11*40,x
+    lda confirm_text+15,x
+    sta SCREEN_RAM+12+12*40,x
+    tya
+    sta COLOR_RAM+12+12*40,x
+    lda confirm_text+30,x
+    sta SCREEN_RAM+12+13*40,x
+    tya
+    sta COLOR_RAM+12+13*40,x
+    inx
+    cpx #15
+    bne ndc_loop
+    rts
+
+confirm_text:
+.byte 079,119,119,119,119,119,119,119,119,119,119,119,119,119,080
+.byte 101,001,018,005,032,025,015,021,032,019,021,018,005,063,103
+.byte 076,111,111,111,111,111,111,111,111,111,111,111,111,111,122
+
+////////////////////////////////////////////////////
 // Draw Screen
 draw_screen:
     ////////////////////////////////////////////////
-    // draw the petmate screen... start
+    // Draw the Petmate Screen... START
     lda screen_001
     sta BORDER_COLOR
     lda screen_001+1
     sta BACKGROUND_COLOR
     ldx #$00 // Draw the screen from memory location
 dpms_loop:
-    lda screen_001+2,x // petmate screen (+2 is to skip over background/border color)
+    lda screen_001+2,x // Petmate screen (+2 is to skip over background/border color)
     sta 1024,x
     lda screen_001+2+256,x
     sta 1024+256,x
@@ -516,7 +541,7 @@ dpms_loop:
     sta COLOR_RAM+512+256,x
     inx
     bne dpms_loop
-    // draw the petmate screen... end
+    // Draw the Petmate Screen... END
     ////////////////////////////////////////////////
     ldx #$00    // Draw the filename onto the screen
 ds_fn_loop:
@@ -674,7 +699,7 @@ dr_8_2:
 }
 
 ////////////////////////////////////////////////////
-// refresh_jcm
+// Refresh Joystick Control Mode
 refresh_jcm:
 draw_jcm:
     // 0 = OFF: off
@@ -712,6 +737,8 @@ jcm_modes_text:
 .text "trak"
 .text "edit"
 
+////////////////////////////////////////////////////
+// Clear Pattern Line Macro
 .macro ClearPatternLine(line) {
     lda #$20 // Clear pattern area
     ldx #$00
@@ -742,7 +769,7 @@ rp_loop4:
 }
 
 ////////////////////////////////////////////////////
-// refresh pattern
+// Refresh Pattern
 refresh_pattern:
     // current_pattern
     // pattern_cursor
@@ -932,7 +959,7 @@ rp_v14:
     rts
 
 ////////////////////////////////////////////////////
-// refresh track blocks
+// Refresh Track Blocks
 refresh_track_blocks:
     lda #$20 // Clear Track Blocks Area
     ldx #$00
@@ -944,7 +971,6 @@ rtb_loop1:
     cpx #$07
     bne rtb_loop1
     // Done clearing track blocks area
-
 // track -1
     ldx track_block_cursor
     dex
@@ -968,7 +994,6 @@ rtb_skip_top:
     lda track_block,x
     PrintHex(4,4) // print pattern in track area
     PrintHex(16,3) // print pattern in pattern area
-
 // track +1
     ldx track_block_cursor
     cpx track_block_length
@@ -1228,25 +1253,21 @@ sv_dont_add:
     jmp sv_labl4
 sv_labl5:
     stx filename_length
-.var tmpalow = $fb 
-.var tmpahigh = $fc 
-.var savefrom = $4000 
-.var saveto   = $9fff 
     lda #$0f
     ldx drive
     ldy #$ff
     jsr KERNAL_SETLFS
-    lda filename_length //#$10
+    lda filename_length
     ldx #<filename_save
     ldy #>filename_save
     jsr KERNAL_SETNAM
-    lda #<savefrom // Set Start Address
-    sta tmpalow
-    lda #>savefrom
-    sta tmpahigh
-    ldx #<saveto // Set End Address 
-    ldy #>saveto 
-    lda #<tmpalow
+    lda #<tracker_data_start // Set Start Address
+    sta zp_pointer_lo
+    lda #>tracker_data_start
+    sta zp_pointer_hi
+    ldx #<tracker_data_end // Set End Address 
+    ldy #>tracker_data_end 
+    lda #<zp_pointer_lo
     jsr KERNAL_SAVE 
     lda #13
     jsr KERNAL_CHROUT
