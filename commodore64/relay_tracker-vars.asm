@@ -7,6 +7,10 @@
 // 2019 CityXen
 //////////////////////////////////////////////////////////////////////////
 
+// zero page vars
+.const zp_pointer_lo  = $fb
+.const zp_pointer_hi  = $fc
+
 // disk vars
 .var filename            = $4b8 // 16 bytes
 .var filename_color      = $d8b8
@@ -28,18 +32,20 @@
 .var pattern_cursor      = $41fc
 .const pattern_cursor_init = 0
 .const pattern_length    = $4100 // for each pattern (up to pattern_max), a byte will indicate what the length of the pattern will be
-.var pattern_block_start = $4200
+.var pattern_block_start = $4000
 .var pattern_block_end   = $9fff
 .const pattern_block_start_lo = $00
-.const pattern_block_start_hi = $42
-.const pattern_block     = $fb
-.const pattern_block_lo  = $fb
-.const pattern_block_hi  = $fc
+.const pattern_block_start_hi = $40
+.const pattern_block_end_lo = $ff
+.const pattern_block_end_hi = $9f
+// .const pattern_block     = $fb
+// .const pattern_block_lo  = $fb
+// .const pattern_block_hi  = $fc
 .const pattern_min       = $00
 .const pattern_max       = $1e
 
 // Joystick Control Mode
-.var joystick_control_mode = $41fc
+.var joystick_control_mode = $41fb
 .const max_joystick_control_modes = $04
     // Joystick control modes: (ALL JOYSTICK FUNCS ARE ON PORT 2)
     // 0 = OFF: off

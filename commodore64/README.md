@@ -55,3 +55,5 @@ F2 - Track Block Length DOWN
 F4 - Track Block Length UP
 
 J - Toggle Joystick Control Mode
+
+N - Clear memory
