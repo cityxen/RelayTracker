@@ -1,6 +1,6 @@
 # Relay Tracker
 
-As seen on our youtube channel: https://www.youtube.com/CityXen
+As seen on our youtube channel: https://www.youtube.com/watch?v=qtZTxJKP-fk
 
 Commodore 64 Version 1.6: Most things working, Cleaned up screen some... TODO: Joystick Control Mode, Erase File
 

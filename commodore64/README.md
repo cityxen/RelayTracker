@@ -1,6 +1,6 @@
 # Relay Tracker - Commodore 64 Version
 
-Version: 1.6
+Version: 1.7
 
 Author: Deadline
 
@@ -54,12 +54,21 @@ F2 - Track Block Length DOWN
 
 F4 - Track Block Length UP
 
-J - Toggle Joystick Control Mode
+J - Toggle Joystick Control Mode (JCM Modes: OFF,PLAY,FREE,TRAK,EDIT)
+        (TODO: These functions do not work yet)
+        OFF  = Joystick doesn't affect anything
+        PLAY = While fire button is pressed, track will play
+        FREE = Up,Down,Left,Right toggle relays 1-4 Fire+Up,Down,Left or Right, toggle relays 2-8)
+        TRAK = Up Move Pattern Cursor Up, Down Move Pattern Cursor Down
+        EDIT = Move Joystick Cursor within Pattern area to move, Fire toggle relay bit
 
 N - Clear memory
 
-C - Change Command
+C - Change Command (Current commands: SPEED, STOP)
 
 = - Change Command Data
 
 SPACE - Play/Pause
+
+E - Erase File (TODO: This function does not work yet)
+

@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker
 //
-// Version: 1.6
+// Version: 1.7
 // Author: Deadline
 //
 // 2019 CityXen
@@ -519,7 +519,18 @@ playback:
     txa
     and #$3f
     sta playback_speed
+    jmp pb_pc_end
 pb_pc_2:
+    cmp #$02
+    bne pb_pc_3
+    // stop
+    lda #$00
+    sta playback_playing
+    jmp pb_pc_end
+pb_pc_3:
+
+pb_pc_end:
+    
 
     // do speed stuff
     jsr KERNAL_RDTIM
