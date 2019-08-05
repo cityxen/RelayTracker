@@ -4,9 +4,9 @@ Version: 1.4
 
 Author: Deadline
 
-Up to 254 Tracks
+Up to 256 Tracks
 
-Up to 31 Patterns of 255 different states
+Up to 31 Patterns of 256 different states
 
 Notes: If you're going to attempt to compile this, you'll need the Macros and Constants from https://github.com/cityxen/Commodore64_Programming repo
 

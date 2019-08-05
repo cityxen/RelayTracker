@@ -87,7 +87,8 @@ check_d_hit:
 check_e_hit:
     cmp #$45
     bne check_f_hit
-    // TODO: Erase File
+    jsr erase_file_confirm
+    jsr draw_screen
     jmp mainloop
 //////////////////////////////////////////////////
 // F (Change Filename)
@@ -1037,9 +1038,10 @@ fn_reverse:
     cpx #$10
     bne fn_reverse
 fn_kb_chk: // Check Keyboard loop
-    lda #$55    // Check raster and flash the cursor
-    cmp VIC_RASTER_COUNTER
-    bne fn_kb_chk_no_crs
+    clc
+    lda $a2
+    cmp #$10
+    bcc fn_kb_chk_no_crs
     ldx filename_cursor
     lda filename,x
     cmp #$80
@@ -1366,6 +1368,55 @@ load_loading:
 .encoding "screencode_mixed"
 .text "loading "
 .byte 0
+
+////////////////////////////////////////////////////
+// Erase File
+erase_file_confirm:
+    jsr draw_confirm_question
+efc_loop2:
+    jsr KERNAL_GETIN
+    cmp #$00
+    beq efc_loop2
+efc_check_y_hit: // Y (Yes New Memory)
+    cmp #$59
+    beq erase_file
+    rts
+    // Yes hit... erase the file
+erase_file:
+    // TODO: Fix this to where the filename is moved properly
+    lda #$00
+    ldx #$00
+    ldy #$00
+    jsr $ffbd     // call setnam (no filename)
+    lda #$0f      // file number 15
+    ldx $ba       // last used device number
+    bne ef_skip
+    ldx drive     // default to drive
+ef_skip:
+    ldy #$0f      // secondary address 15
+    jsr $ffba     // call setlfs
+    jsr $ffc0     // call open
+    bcs ef_close  // if carry set, the file could not be opened
+    ldx #$0f      // filenumber 15
+    jsr $ffc9     // call chkout (file 15 now used as output)
+    ldy #$00
+ef_loop:
+    lda ef_cmd,y   // get byte from command string
+    jsr $ffd2     // call chrout (send byte through command channel)
+    iny
+    cpy #$12
+    bne ef_loop
+ef_close:
+    jsr show_drive_status
+    lda #$0f      // filenumber 15
+    jsr $ffc3     // call close
+    jsr $ffcc     // call clrchn
+    rts
+    
+ef_cmd:
+.text "S:" // command string
+.byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+.byte $0d  // carriage return, needed if more than one command is sent
 
 ////////////////////////////////////////////////////
 // Show Drive Status

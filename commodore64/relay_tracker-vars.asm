@@ -21,6 +21,14 @@
 .var drive                   = $3fd5
 .var filename_save           = $3ff0 // - $3fff
 
+// playback data
+.var playback_pos_track      = $41fa
+.var playback_pos_pattern    = $41f9
+.var playback_pos_pattern_c  = $41f8
+.var playback_speed          = $41f7
+.var playback_playing        = $41f6
+.const playback_default_speed= $80
+
 // track data
 .const tracker_data_start    = $4000
 .const tracker_data_start_hi = $40
@@ -51,6 +59,9 @@
 
 // Joystick Control Mode
 .var joystick_control_mode   = $41fb
+.var jcm_edit_cursor_x       = $41f4
+.var jcm_edit_cursor_y       = $41f3
+
 .const max_joystick_control_modes = $04
     // Joystick control modes: (ALL JOYSTICK FUNCS ARE ON PORT 2)
     // 0 = OFF: off
