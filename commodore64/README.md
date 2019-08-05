@@ -1,6 +1,6 @@
 # Relay Tracker - Commodore 64 Version
 
-Version: 1.4
+Version: 1.5
 
 Author: Deadline
 
@@ -57,3 +57,9 @@ F4 - Track Block Length UP
 J - Toggle Joystick Control Mode
 
 N - Clear memory
+
+C - Change Command
+
+= - Change Command Data
+
+SPACE - Play/Pause

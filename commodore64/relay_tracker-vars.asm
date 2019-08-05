@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker (VARS)
 //
-// Version: 1.4
+// Version: 1.5
 // Author: Deadline
 //
 // 2019 CityXen
@@ -10,6 +10,8 @@
 // zero page vars
 .const zp_pointer_lo         = $fb
 .const zp_pointer_hi         = $fc
+.const zp_temp               = $fd
+.const zp_temp2              = $fa
 
 // disk vars
 .var filename                = $4b8 // 16 bytes
@@ -27,7 +29,9 @@
 .var playback_pos_pattern_c  = $41f8
 .var playback_speed          = $41f7
 .var playback_playing        = $41f6
-.const playback_default_speed= $80
+.var playback_speed_counter  = $41f2
+.var playback_speed_counter2 = $41f1
+.const playback_default_speed= $3f
 
 // track data
 .const tracker_data_start    = $4000
@@ -44,18 +48,23 @@
 .const track_block_cursor_init = 0
 
 // pattern (256 bytes x 2) + 1 byte for length
-.var current_speed           = $41fd
-.var pattern_cursor          = $41fc
+.const current_speed         = $41fd
+.const pattern_cursor        = $41fc
 .const pattern_cursor_init   = 0
 .const pattern_length        = $4100 // for each pattern (up to pattern_max), a byte will indicate what the length of the pattern will be
-.var pattern_block_start     = $4200
-.var pattern_block_end       = $9fff
+.const pattern_block_start   = $4200
 .const pattern_block_start_lo= $00
 .const pattern_block_start_hi= $42
-.const pattern_block_end_lo  = $ff
-.const pattern_block_end_hi  = $9f
 .const pattern_min           = $00
 .const pattern_max           = $1e
+
+// command/data stuff
+.const command_block_start     = $4300
+.const command_block_start_lo  = $00
+.const command_block_start_hi  = $43
+
+// command = xx------
+// data    = --xxxxxx
 
 // Joystick Control Mode
 .var joystick_control_mode   = $41fb

@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker
 //
-// Version: 1.4
+// Version: 1.5
 // Author: Deadline
 //
 // 2019 CityXen
@@ -51,6 +51,17 @@
 // START OF MAIN LOOP
 mainloop:
 //////////////////////////////////////////////////////////
+// Playback if it is on
+    clc
+    lda playback_playing
+    cmp #$01
+    bne not_playing
+    jsr playback
+not_playing:
+//////////////////////////////////////////////////////////
+// Draw Playback Status
+    jsr draw_playback_status
+//////////////////////////////////////////////////////////
 // CHECK KEYBOARD FOR KEY HITS
     jsr KERNAL_GETIN
 //////////////////////////////////////////////////////////
@@ -58,7 +69,15 @@ mainloop:
 check_space_hit:
     cmp #$20
     bne check_dollar_hit
-    // TODO: play/pause stuff
+    clc
+    lda playback_playing
+    cmp #$01
+    beq chk_spc_hit2
+    inc playback_playing
+    jmp mainloop
+chk_spc_hit2:
+    lda #$00
+    sta playback_playing    
     jmp mainloop
 //////////////////////////////////////////////////////////
 // $ (Show Directory)
@@ -73,7 +92,8 @@ check_dollar_hit:
 check_c_hit:
     cmp #$43
     bne check_d_hit
-    // TODO: Change Command
+    jsr change_command
+    jsr refresh_pattern
     jmp mainloop
 //////////////////////////////////////////////////
 // D (Change Drive)
@@ -243,9 +263,10 @@ check_plus_hit:
 //////////////////////////////////////////////////
 // EQUAL (Change Command Value)
 check_equal_hit:
-    cmp #$38
+    cmp #$3d
     bne check_f1_hit
-    // TODO: Change Command Value
+    jsr change_command_data
+    jsr refresh_pattern
     jmp mainloop
 //////////////////////////////////////////////////
 // F1 (Move Track Position UP)
@@ -385,7 +406,7 @@ check_cursor_down_hit:
     jsr calculate_pattern_block
     jsr refresh_pattern
     jsr draw_current_relays
-check_pattern_too_high:
+check_pattern_too_high:    
     jmp mainloop
 //////////////////////////////////////////////////
 // HOME (Move to top position in current pattern)
@@ -396,6 +417,7 @@ check_home_hit:
     sta pattern_cursor
     jsr calculate_pattern_block
     jsr refresh_pattern
+    jsr draw_current_relays
     jmp mainloop
 //////////////////////////////////////////////////
 // CLR (Move to end position in current pattern)
@@ -405,11 +427,163 @@ check_clr_hit:
     lda #$ff
     sta pattern_cursor
     jsr calculate_pattern_block
-    jsr refresh_pattern    
+    jsr refresh_pattern
+    jsr draw_current_relays
 check_keys_done:
     jmp mainloop
 // END OF MAIN LOOP
 ////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////
+// Change Command
+change_command_data:
+    jsr calculate_pattern_block
+    inc zp_pointer_hi
+    ldx #$00
+    lda (zp_pointer_lo,x)
+    and #$c0
+    sta zp_temp
+    lda (zp_pointer_lo,x)
+    clc
+    and #$3f
+    sta zp_temp2
+    inc zp_temp2
+    lda zp_temp2
+    clc
+    cmp #$40
+    bcs ccd_jmp1
+    ora zp_temp
+    sta (zp_pointer_lo,x)
+    rts
+ccd_jmp1:
+    lda zp_temp
+    sta (zp_pointer_lo,x)
+    rts
+
+////////////////////////////////////////////////////
+// Change Command
+change_command:
+    jsr calculate_pattern_block
+    inc zp_pointer_hi
+    ldx #$00
+    lda (zp_pointer_lo,x)
+    clc
+    adc #$40
+    bcc cc_2
+    lda (zp_pointer_lo,x)
+    and #$3f
+cc_2:
+    sta (zp_pointer_lo,x)
+
+    // lda (zp_pointer_lo,x)
+    // and #$c0
+    // PrintHex(34,7)
+
+    ldx #$00
+    lda (zp_pointer_lo,x)
+    and #$c0
+    cmp #$40
+    bne cc_not_speed
+    lda (zp_pointer_lo,x)
+    ora #playback_default_speed
+    sta (zp_pointer_lo,x)
+    rts
+cc_not_speed:
+    lda (zp_pointer_lo,x)
+    and #$c0
+    sta (zp_pointer_lo,x)
+    rts
+
+////////////////////////////////////////////////////
+// Playback
+playback:
+
+    // process command
+    jsr calculate_pattern_block
+    inc zp_pointer_hi
+    ldx #$00
+    lda (zp_pointer_lo,x)
+    tax
+    and #$c0
+    clc
+    ror
+    ror
+    ror
+    ror
+    ror
+    ror
+    cmp #$01
+    bne pb_pc_2
+    // speed
+    txa
+    and #$3f
+    sta playback_speed
+pb_pc_2:
+
+    // do speed stuff
+    jsr KERNAL_RDTIM
+    and #$01
+    cmp #$01
+    beq pb_speed_chk
+    rts
+pb_speed_chk:
+    inc playback_speed_counter
+    clc
+    lda playback_speed
+    rol
+    rol
+    cmp playback_speed_counter
+    bcc pb_speed_chk2
+    rts
+pb_speed_chk2:
+    lda #$00
+    sta playback_speed_counter
+    inc playback_speed_counter2
+    lda playback_speed_counter2
+    cmp #$04
+    beq pb_speed_chk3
+    rts
+pb_speed_chk3:
+    lda #$00
+    sta playback_speed_counter2
+
+    clc
+    lda playback_pos_pattern_c
+    cmp #$ff
+    bne pb_ppc_out
+    
+    clc
+    lda playback_pos_track
+    cmp track_block_length
+    bne pb_ppt_out
+
+    lda #$ff
+    sta playback_pos_track
+
+pb_ppt_out:
+    inc playback_pos_track
+
+pb_ppc_out:
+    inc playback_pos_pattern_c
+
+    lda playback_pos_track
+    sta track_block_cursor
+
+    tax
+    lda track_block,x
+    sta playback_pos_pattern
+    
+    lda playback_pos_pattern_c
+    sta pattern_cursor
+
+    jsr calculate_pattern_block
+    jsr refresh_pattern
+    jsr refresh_track_blocks
+    jsr draw_current_relays
+
+
+    rts
 
 ////////////////////////////////////////////////////
 // Initialize
@@ -425,7 +599,9 @@ init_fn_loop:
     inx
     cpx #$10
     bne init_fn_loop
-    jsr new_data
+    
+    // jsr new_data
+
     ldx #00
     stx filename_cursor
     lda #track_block_cursor_init // Set Track block cursor to 0
@@ -437,7 +613,16 @@ init_fn_loop:
     jsr calculate_pattern_block
     lda #$00
     sta joystick_control_mode
+    sta playback_pos_track
+    sta playback_pos_pattern
+    sta playback_pos_pattern_c
+    sta playback_playing
+    lda #playback_default_speed
+    sta playback_speed
+    lda #$00
+    sta playback_speed_counter
     rts
+
 initial_filename:
 .text "filename.rtd"
 .byte 0,0,0,0
@@ -513,6 +698,25 @@ confirm_text:
 .byte 079,119,119,119,119,119,119,119,119,119,119,119,119,119,080
 .byte 101,001,018,005,032,025,015,021,032,019,021,018,005,063,103
 .byte 076,111,111,111,111,111,111,111,111,111,111,111,111,111,122
+
+////////////////////////////////////////////////////
+// Draw Playback Status
+draw_playback_status:
+    lda playback_speed
+    PrintHex(19,24)
+    ldx playback_playing
+    lda playback_text,x
+    sta SCREEN_RAM+25+24*40
+    lda playback_pos_track
+    PrintHex(26,24)
+    lda playback_pos_pattern
+    PrintHex(28,24)
+    lda playback_pos_pattern_c
+    PrintHex(30,24)
+    rts
+
+playback_text:
+.byte 05,16
 
 ////////////////////////////////////////////////////
 // Draw Screen
@@ -771,6 +975,57 @@ rp_loop4:
 }
 
 ////////////////////////////////////////////////////
+// Draw Command Macro
+.macro DrawCommand(xpos,ypos) {
+    and #$c0
+    clc
+    ror
+    ror
+    ror
+    ror
+    ror
+    ror
+    // PrintHex(38,24)
+    sta zp_temp
+    ldx #$00
+dc_jmp3:
+    lda zp_temp
+    cmp #$00
+    beq dc_jmp4
+    inx
+    inx
+    inx
+    inx
+    inx
+    inx
+    inx
+    dec zp_temp
+    jmp dc_jmp3
+dc_jmp4:
+    ldy #$00
+dc_loop1:
+    lda command_table,x
+    sta SCREEN_RAM+xpos+ypos*40,y
+    inx
+    iny
+    cpy #$07
+    bne dc_loop1
+}
+
+command_table:
+.text "-------"
+.text "speed  "
+.text "stop   "
+.text "future "
+
+////////////////////////////////////////////////////
+// Draw Command Data Macro
+.macro DrawCommandData(xpos,ypos) {
+    and #$3f
+    PrintHex(xpos,ypos)
+}
+
+////////////////////////////////////////////////////
 // Refresh Pattern
 refresh_pattern:
     // current_pattern
@@ -782,6 +1037,7 @@ refresh_pattern:
     // 13 shown pattern values on screen
     // 7 is the cursor position
 rp_v1:
+    jsr calculate_pattern_block
     clc
     lda pattern_cursor
     sbc #$05
@@ -795,7 +1051,15 @@ rp_v1_2:
     lda (zp_pointer_lo,x)
     DrawRelays(7,11)
     PrintHex(18,11)
-rp_v2:
+    inc zp_pointer_hi
+    ldx #$00
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,11)
+    ldx #$00
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,11)
+    dec zp_pointer_hi
+rp_v2:    
     clc
     lda pattern_cursor
     sbc #$04
@@ -809,7 +1073,15 @@ rp_v2_2:
     lda (zp_pointer_lo,x)
     DrawRelays(7,12)
     PrintHex(18,12)
-rp_v3:
+    inc zp_pointer_hi
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,12)
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,12)
+    dec zp_pointer_hi
+rp_v3:    
     clc
     lda pattern_cursor
     sbc #$03
@@ -823,7 +1095,15 @@ rp_v3_2:
     lda (zp_pointer_lo,x)
     DrawRelays(7,13)
     PrintHex(18,13)
-rp_v4:
+    inc zp_pointer_hi
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,13)
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,13)
+    dec zp_pointer_hi
+rp_v4:    
     clc
     lda pattern_cursor
     sbc #$02
@@ -837,7 +1117,15 @@ rp_v4_2:
     lda (zp_pointer_lo,x)
     DrawRelays(7,14)
     PrintHex(18,14)
-rp_v5:
+    inc zp_pointer_hi
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,14)
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,14)
+    dec zp_pointer_hi
+rp_v5:    
     clc
     lda pattern_cursor
     sbc #$01
@@ -851,21 +1139,37 @@ rp_v5_2:
     lda (zp_pointer_lo,x)
     DrawRelays(7,15)
     PrintHex(18,15)
-rp_v6:
+    inc zp_pointer_hi
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,15)
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,15)
+    dec zp_pointer_hi
+rp_v6:    
     clc
     lda pattern_cursor
     sbc #$00
     bcs rp_v6_2
     ClearPatternLine(16)
     jmp rp_v7
-rp_v6_2:
+rp_v6_2:    
     sta zp_pointer_lo
     PrintHex(2,16)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,16)
     PrintHex(18,16)
-rp_v7:
+    inc zp_pointer_hi
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,16)
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,16)
+    dec zp_pointer_hi
+rp_v7:    
     lda pattern_cursor
     sta zp_pointer_lo
     PrintHex(2,17)
@@ -873,6 +1177,14 @@ rp_v7:
     lda (zp_pointer_lo,x)
     DrawRelays(7,17)
     PrintHex(18,17)
+    inc zp_pointer_hi
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,17)
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,17)
+    dec zp_pointer_hi
 rp_v8:
     clc
     lda pattern_cursor
@@ -887,6 +1199,14 @@ rp_v8_2:
     lda (zp_pointer_lo,x)
     DrawRelays(7,18)
     PrintHex(18,18)
+    inc zp_pointer_hi
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,18)
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,18)
+    dec zp_pointer_hi
 rp_v9:
     clc
     lda pattern_cursor
@@ -901,6 +1221,14 @@ rp_v9_2:
     lda (zp_pointer_lo,x)
     DrawRelays(7,19)
     PrintHex(18,19)
+    inc zp_pointer_hi
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,19)
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,19)
+    dec zp_pointer_hi
 rp_v10:
     clc
     lda pattern_cursor
@@ -915,6 +1243,14 @@ rp_v10_2:
     lda (zp_pointer_lo,x)
     DrawRelays(7,20)
     PrintHex(18,20)
+    inc zp_pointer_hi
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,20)
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,20)
+    dec zp_pointer_hi
 rp_v11:
     clc
     lda pattern_cursor
@@ -929,6 +1265,14 @@ rp_v11_2:
     lda (zp_pointer_lo,x)
     DrawRelays(7,21)
     PrintHex(18,21)
+    inc zp_pointer_hi
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,21)
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,21)
+    dec zp_pointer_hi
 rp_v12:
     clc
     lda pattern_cursor
@@ -943,6 +1287,14 @@ rp_v12_2:
     lda (zp_pointer_lo,x)
     DrawRelays(7,22)
     PrintHex(18,22)
+    inc zp_pointer_hi
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,22)
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,22)
+    dec zp_pointer_hi
 rp_v13:
     clc
     lda pattern_cursor
@@ -957,6 +1309,13 @@ rp_v13_2:
     lda (zp_pointer_lo,x)
     DrawRelays(7,23)
     PrintHex(18,23)
+    inc zp_pointer_hi
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommand(23,23)
+    ldx #$00    
+    lda (zp_pointer_lo,x)
+    DrawCommandData(35,23)
 rp_v14:
     rts
 
@@ -1685,11 +2044,14 @@ all_relay_on:
 // Calculate pattern block
 calculate_pattern_block:
     lda pattern_cursor
+    sta playback_pos_pattern_c
     sta zp_pointer_lo
     lda #pattern_block_start_hi
     sta zp_pointer_hi
     ldx track_block_cursor
+    stx playback_pos_track
     lda track_block,x
+    sta playback_pos_pattern
     tax
     cpx #$00
     beq cpb_2
