@@ -1,6 +1,6 @@
 # Relay Tracker - Commodore 64 Version
 
-Version: 1.5
+Version: 1.6
 
 Author: Deadline
 

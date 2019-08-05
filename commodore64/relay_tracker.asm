@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker
 //
-// Version: 1.5
+// Version: 1.6
 // Author: Deadline
 //
 // 2019 CityXen
@@ -703,16 +703,16 @@ confirm_text:
 // Draw Playback Status
 draw_playback_status:
     lda playback_speed
-    PrintHex(19,24)
+    PrintHex(24,1) // draw playback speed
     ldx playback_playing
     lda playback_text,x
-    sta SCREEN_RAM+25+24*40
+    sta SCREEN_RAM+16+1*40 // draw playback_playing
     lda playback_pos_track
-    PrintHex(26,24)
+    PrintHex(17,1) // draw track pos
     lda playback_pos_pattern
-    PrintHex(28,24)
+    PrintHex(19,1) // draw pattern pos
     lda playback_pos_pattern_c
-    PrintHex(30,24)
+    PrintHex(21,1) // draw pattern cursor
     rts
 
 playback_text:
@@ -924,16 +924,16 @@ draw_jcm:
 jcm_is_zero:
     tax
     lda jcm_modes_text,x
-    sta SCREEN_RAM+11+24*40
+    sta SCREEN_RAM+28+1*40
     inx
     lda jcm_modes_text,x
-    sta SCREEN_RAM+1+11+24*40
+    sta SCREEN_RAM+1+28+1*40
     inx
     lda jcm_modes_text,x
-    sta SCREEN_RAM+2+11+24*40
+    sta SCREEN_RAM+2+28+1*40
     inx
     lda jcm_modes_text,x
-    sta SCREEN_RAM+3+11+24*40
+    sta SCREEN_RAM+3+28+1*40
     rts
 
 jcm_modes_text:
@@ -1814,7 +1814,7 @@ draw_current_relays:
     ldx #$00
     lda (zp_pointer_lo,x) // Load the value from memory
     DrawRelays(7,17)      // Draw current relay at top right of screen
-    DrawRelays(31,0)      // Draw current relay at current in track pattern cursor position
+    DrawRelays(7,1)      // Draw current relay at current in track pattern cursor position
     PrintHex(18,17)       // Print hex value of current relay in track pattern cursor position
     eor #$ff              // Relay block is actually inverse of what is shown on screen
     sta USER_PORT_DATA    // Set Actual USER Port relays
@@ -2065,9 +2065,9 @@ cpb_1:
     jmp cpb_1
 cpb_2:
     lda zp_pointer_lo
-    PrintHex(4,24)
+    PrintHex(38,1) // draw memory locations
     lda zp_pointer_hi
-    PrintHex(2,24)
+    PrintHex(36,1)
     rts
 
 // END OF PROGRAM
