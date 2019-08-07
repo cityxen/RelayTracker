@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker (VARS)
 //
-// Version: 1.7
+// Version: 1.8
 // Author: Deadline
 //
 // 2019 CityXen
@@ -31,7 +31,7 @@
 .var playback_playing        = $41f6
 .var playback_speed_counter  = $41f2
 .var playback_speed_counter2 = $41f1
-.const playback_default_speed= $3f
+.const playback_default_speed= $1f
 
 // track data
 .const tracker_data_start    = $4000
@@ -71,7 +71,7 @@
 .var jcm_edit_cursor_x       = $41f4
 .var jcm_edit_cursor_y       = $41f3
 
-.const max_joystick_control_modes = $04
+.const max_joystick_control_modes = $01
     // Joystick control modes: (ALL JOYSTICK FUNCS ARE ON PORT 2)
     // 0 = OFF: off
     // 1 = PLAY MODE: Joystick button plays

@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker
 //
-// Version: 1.7
+// Version: 1.8
 // Author: Deadline
 //
 // 2019 CityXen
@@ -51,13 +51,11 @@
 // START OF MAIN LOOP
 mainloop:
 //////////////////////////////////////////////////////////
+// Joystick Control Mode
+    jsr joystick_control_mode_check
+//////////////////////////////////////////////////////////
 // Playback if it is on
-    clc
-    lda playback_playing
-    cmp #$01
-    bne not_playing
     jsr playback
-not_playing:
 //////////////////////////////////////////////////////////
 // Draw Playback Status
     jsr draw_playback_status
@@ -261,13 +259,21 @@ check_plus_hit:
     jsr all_relay_on
     jmp mainloop
 //////////////////////////////////////////////////
-// EQUAL (Change Command Value)
+// EQUAL (Change Command Value DOWN)
 check_equal_hit:
     cmp #$3d
-    bne check_f1_hit
-    jsr change_command_data
+    bne check_star_hit
+    jsr change_command_data_down
     jsr refresh_pattern
     jmp mainloop
+//////////////////////////////////////////////////
+// STAR (Change Command Value UP)
+check_star_hit:
+    cmp #$2a
+    bne check_f1_hit
+    jsr change_command_data_up
+    jsr refresh_pattern
+    jmp mainloop    
 //////////////////////////////////////////////////
 // F1 (Move Track Position UP)
 check_f1_hit:
@@ -434,10 +440,49 @@ check_keys_done:
 // END OF MAIN LOOP
 ////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////
+// Joystick Control Mode
+joystick_control_mode_check:
+    clc
+    lda joystick_control_mode
+    cmp #$00
+    bne jcm_mode_on
+    rts
+jcm_mode_on:
+    cmp #$01
+    bne jcm_not_play
+    lda JOYSTICK_PORT_2
+    jsr sub_read_joystick_2_fire
+	cmp #$01
+    bne jcm_play_off
+    lda #$01
+    sta playback_playing
+    rts
+jcm_play_off:
+    lda #$00
+    sta playback_playing
+    rts
+
+jcm_not_play:
+    rts
+
+sub_read_joystick_2_fire:
+	lda JOYSTICK_PORT_2
+	lsr
+	lsr
+	lsr
+	lsr
+	lsr
+	bcc read_joystick_2_fire
+	lda #$00
+	rts
+read_joystick_2_fire:
+	lda #$01
+	rts
 
 ////////////////////////////////////////////////////
-// Change Command
-change_command_data:
+// Change Command UP
+change_command_data_up:
     jsr calculate_pattern_block
     inc zp_pointer_hi
     ldx #$00
@@ -452,12 +497,39 @@ change_command_data:
     lda zp_temp2
     clc
     cmp #$40
-    bcs ccd_jmp1
+    bcs ccdu_jmp1
     ora zp_temp
     sta (zp_pointer_lo,x)
     rts
-ccd_jmp1:
+ccdu_jmp1:
     lda zp_temp
+    sta (zp_pointer_lo,x)
+    rts
+
+////////////////////////////////////////////////////
+// Change Command DOWN
+change_command_data_down:
+    jsr calculate_pattern_block
+    inc zp_pointer_hi
+    ldx #$00
+    lda (zp_pointer_lo,x)
+    and #$c0
+    sta zp_temp
+    lda (zp_pointer_lo,x)
+    clc
+    and #$3f
+    sta zp_temp2
+    dec zp_temp2
+    lda zp_temp2
+    clc
+    cmp #$ff
+    bcs ccdd_jmp1
+    ora zp_temp
+    sta (zp_pointer_lo,x)
+    rts
+ccdd_jmp1:
+    lda zp_temp
+    ora #$3F
     sta (zp_pointer_lo,x)
     rts
 
@@ -498,7 +570,12 @@ cc_not_speed:
 ////////////////////////////////////////////////////
 // Playback
 playback:
-
+    clc
+    lda playback_playing
+    cmp #$01
+    beq not_playing
+    rts
+not_playing:
     // process command
     jsr calculate_pattern_block
     inc zp_pointer_hi
@@ -1585,6 +1662,34 @@ dir_presskey:
 .byte 0
 
 ////////////////////////////////////////////////////
+// Convert Filename for Disk I/O
+convert_filename:
+    ldx #$00
+cfn_labl0:
+    lda #$00
+    sta filename_save,x
+    inx
+    cpx #$10
+    bne cfn_labl0
+cfn_labl2:
+    ldx #$00
+cfn_labl4:
+    lda filename_buffer,x
+    cmp #$00
+    beq cfn_labl5
+    cmp #27
+    bcs cfn_dont_add
+    adc #$40
+cfn_dont_add:
+    sta filename_save,x
+    inx
+    jmp cfn_labl4
+cfn_labl5:
+    stx filename_length
+    rts
+
+
+////////////////////////////////////////////////////
 // Save File
 save_file:
     ClearScreen(BLACK)
@@ -1595,37 +1700,17 @@ sv_labl1:
     sta SCREEN_RAM,x
     inx
     jmp sv_labl1
-    ldx #$00
-sv_labl0:
-    lda #$00
-    sta filename_save,x
-    inx
-    cpx #$10
-    bne sv_labl0
 sv_labl2:
-    ldx #$00
+    jsr convert_filename
+  ldx #$00
 sv_labl3:
     lda filename_buffer,x
-    beq sv_labl33
+    beq sv_labl4
     sta SCREEN_RAM+7,x
     inx
     cpx #$10
     bne sv_labl3
-sv_labl33:
-    ldx #$00
 sv_labl4:
-    lda filename_buffer,x
-    cmp #$00
-    beq sv_labl5
-    cmp #27
-    bcs sv_dont_add
-    adc #$40
-sv_dont_add:
-    sta filename_save,x
-    inx
-    jmp sv_labl4
-sv_labl5:
-    stx filename_length
     lda #$0f
     ldx drive
     ldy #$ff
@@ -1674,38 +1759,17 @@ ld_labl1:
     sta SCREEN_RAM,x
     inx
     jmp ld_labl1
-    ldx #$00
-ld_labl0:
-    lda #$00
-    sta filename_save,x
-    inx
-    cpx #$10
-    bne ld_labl0
 ld_labl2:
+    jsr convert_filename
     ldx #$00
 ld_labl3:
     lda filename_buffer,x
-    beq ld_labl33
+    beq ld_labl4
     sta SCREEN_RAM+8,x
     inx
     cpx #$10
     bne ld_labl3
-ld_labl33:
-    ldx #$00
 ld_labl4:
-    lda filename_buffer,x
-    cmp #$00
-    beq ld_labl5
-    cmp #27
-    bcs ld_dont_add
-    adc #$40
-ld_dont_add:
-    sta filename_save,x
-    inx
-    jmp ld_labl4
-ld_labl5:
-    stx filename_length
-.var loadto   = $4000 
     lda #$0f
     ldx drive
     ldy #$ff
@@ -1714,8 +1778,8 @@ ld_labl5:
     ldx #<filename_save
     ldy #>filename_save
     jsr KERNAL_SETNAM
-    ldx #<loadto // Set End Address
-    ldy #>loadto 
+    ldx #<tracker_data_start // Set Load Address
+    ldy #>tracker_data_start
     lda #00
     jsr KERNAL_LOAD
     lda #13
@@ -1753,16 +1817,25 @@ efc_check_y_hit: // Y (Yes New Memory)
     rts
     // Yes hit... erase the file
 erase_file:
-    // TODO: Fix this to where the filename is moved properly
+    jsr convert_filename
+    //lda #filename_length
+    //PrintHex(1,1)
+    ldx #$00
+ef_cpfn:
+    lda filename_save,x
+    sta ef_cmd+2,x
+    inx
+    cpx #filename_length
+    bne ef_cpfn
+    lda #$0d
+    sta ef_cmd+2,x
+
     lda #$00
     ldx #$00
     ldy #$00
     jsr $ffbd     // call setnam (no filename)
     lda #$0f      // file number 15
-    ldx $ba       // last used device number
-    bne ef_skip
     ldx drive     // default to drive
-ef_skip:
     ldy #$0f      // secondary address 15
     jsr $ffba     // call setlfs
     jsr $ffc0     // call open
@@ -1777,14 +1850,16 @@ ef_loop:
     cpy #$12
     bne ef_loop
 ef_close:
-    jsr show_drive_status
     lda #$0f      // filenumber 15
     jsr $ffc3     // call close
     jsr $ffcc     // call clrchn
+
+    jsr show_drive_status
+
     rts
     
 ef_cmd:
-.text "S:" // command string
+.text "s:" // command string
 .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 .byte $0d  // carriage return, needed if more than one command is sent
 
