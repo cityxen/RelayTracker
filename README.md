@@ -1,6 +1,8 @@
 # Relay Tracker
 
-As seen on our youtube channel: https://www.youtube.com/watch?v=qtZTxJKP-fk
+This program allows you to program and playback a sequence of states for an 8 Channel relay board similar to a VIC-Rel for the Commodore 64. It may even work with a VIC-Rel, but can't test it. The schematic for each device will be in the folder.
+
+Here is a brief demo of what this looks like in operation during the early stages of development: https://www.youtube.com/watch?v=qtZTxJKP-fk
 
 Commodore 64 Version 1.8: STOP command working, JCM PLAY mode added, * and = change command data values TODO: Erase File
 
