@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker
 //
-// Version: 1.8
+// Version: 1.9
 // Author: Deadline
 //
 // 2019 CityXen
@@ -41,11 +41,26 @@
     BasicUpstart($080d)
 
 *=$080d "Program"
+
+    sei
+    lda #<irq
+    ldx #>irq
+    sta $314
+    stx $315
+    cli
+
     lda VIC_MEM_POINTERS // point to the new characters
     ora #$0c
     sta VIC_MEM_POINTERS
     jsr initialize
     jsr draw_screen
+
+    jmp mainloop
+
+////////////////////////////////////////////////////
+// IRQ
+irq:
+    jmp $ea31
 
 //////////////////////////////////////////////////////////
 // START OF MAIN LOOP
@@ -75,7 +90,7 @@ check_space_hit:
     jmp mainloop
 chk_spc_hit2:
     lda #$00
-    sta playback_playing    
+    sta playback_playing
     jmp mainloop
 //////////////////////////////////////////////////////////
 // $ (Show Directory)
@@ -273,7 +288,7 @@ check_star_hit:
     bne check_f1_hit
     jsr change_command_data_up
     jsr refresh_pattern
-    jmp mainloop    
+    jmp mainloop
 //////////////////////////////////////////////////
 // F1 (Move Track Position UP)
 check_f1_hit:
@@ -412,7 +427,7 @@ check_cursor_down_hit:
     jsr calculate_pattern_block
     jsr refresh_pattern
     jsr draw_current_relays
-check_pattern_too_high:    
+check_pattern_too_high:
     jmp mainloop
 //////////////////////////////////////////////////
 // HOME (Move to top position in current pattern)
@@ -607,7 +622,7 @@ pb_pc_2:
 pb_pc_3:
 
 pb_pc_end:
-    
+
 
     // do speed stuff
     jsr KERNAL_RDTIM
@@ -640,7 +655,7 @@ pb_speed_chk3:
     lda playback_pos_pattern_c
     cmp #$ff
     bne pb_ppc_out
-    
+
     clc
     lda playback_pos_track
     cmp track_block_length
@@ -661,7 +676,7 @@ pb_ppc_out:
     tax
     lda track_block,x
     sta playback_pos_pattern
-    
+
     lda playback_pos_pattern_c
     sta pattern_cursor
 
@@ -687,10 +702,8 @@ init_fn_loop:
     inx
     cpx #$10
     bne init_fn_loop
-    
-    // jsr new_data
-
-    ldx #00
+    jsr convert_filename
+    ldx filename_length
     stx filename_cursor
     lda #track_block_cursor_init // Set Track block cursor to 0
     sta track_block_cursor
@@ -1147,7 +1160,7 @@ rp_v1_2:
     lda (zp_pointer_lo,x)
     DrawCommandData(35,11)
     dec zp_pointer_hi
-rp_v2:    
+rp_v2:
     clc
     lda pattern_cursor
     sbc #$04
@@ -1162,14 +1175,14 @@ rp_v2_2:
     DrawRelays(7,12)
     PrintHex(18,12)
     inc zp_pointer_hi
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommand(23,12)
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommandData(35,12)
     dec zp_pointer_hi
-rp_v3:    
+rp_v3:
     clc
     lda pattern_cursor
     sbc #$03
@@ -1184,14 +1197,14 @@ rp_v3_2:
     DrawRelays(7,13)
     PrintHex(18,13)
     inc zp_pointer_hi
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommand(23,13)
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommandData(35,13)
     dec zp_pointer_hi
-rp_v4:    
+rp_v4:
     clc
     lda pattern_cursor
     sbc #$02
@@ -1206,14 +1219,14 @@ rp_v4_2:
     DrawRelays(7,14)
     PrintHex(18,14)
     inc zp_pointer_hi
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommand(23,14)
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommandData(35,14)
     dec zp_pointer_hi
-rp_v5:    
+rp_v5:
     clc
     lda pattern_cursor
     sbc #$01
@@ -1228,21 +1241,21 @@ rp_v5_2:
     DrawRelays(7,15)
     PrintHex(18,15)
     inc zp_pointer_hi
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommand(23,15)
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommandData(35,15)
     dec zp_pointer_hi
-rp_v6:    
+rp_v6:
     clc
     lda pattern_cursor
     sbc #$00
     bcs rp_v6_2
     ClearPatternLine(16)
     jmp rp_v7
-rp_v6_2:    
+rp_v6_2:
     sta zp_pointer_lo
     PrintHex(2,16)
     ldx #$00
@@ -1250,14 +1263,14 @@ rp_v6_2:
     DrawRelays(7,16)
     PrintHex(18,16)
     inc zp_pointer_hi
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommand(23,16)
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommandData(35,16)
     dec zp_pointer_hi
-rp_v7:    
+rp_v7:
     lda pattern_cursor
     sta zp_pointer_lo
     PrintHex(2,17)
@@ -1266,10 +1279,10 @@ rp_v7:
     DrawRelays(7,17)
     PrintHex(18,17)
     inc zp_pointer_hi
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommand(23,17)
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommandData(35,17)
     dec zp_pointer_hi
@@ -1288,10 +1301,10 @@ rp_v8_2:
     DrawRelays(7,18)
     PrintHex(18,18)
     inc zp_pointer_hi
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommand(23,18)
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommandData(35,18)
     dec zp_pointer_hi
@@ -1310,10 +1323,10 @@ rp_v9_2:
     DrawRelays(7,19)
     PrintHex(18,19)
     inc zp_pointer_hi
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommand(23,19)
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommandData(35,19)
     dec zp_pointer_hi
@@ -1332,10 +1345,10 @@ rp_v10_2:
     DrawRelays(7,20)
     PrintHex(18,20)
     inc zp_pointer_hi
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommand(23,20)
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommandData(35,20)
     dec zp_pointer_hi
@@ -1354,10 +1367,10 @@ rp_v11_2:
     DrawRelays(7,21)
     PrintHex(18,21)
     inc zp_pointer_hi
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommand(23,21)
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommandData(35,21)
     dec zp_pointer_hi
@@ -1376,10 +1389,10 @@ rp_v12_2:
     DrawRelays(7,22)
     PrintHex(18,22)
     inc zp_pointer_hi
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommand(23,22)
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommandData(35,22)
     dec zp_pointer_hi
@@ -1398,10 +1411,10 @@ rp_v13_2:
     DrawRelays(7,23)
     PrintHex(18,23)
     inc zp_pointer_hi
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommand(23,23)
-    ldx #$00    
+    ldx #$00
     lda (zp_pointer_lo,x)
     DrawCommandData(35,23)
 rp_v14:
@@ -1604,57 +1617,84 @@ cd_5:
 // Show Disk Directory
 show_directory:
     ClearScreen(BLACK)
-    lda #$01
+    lda #dirname_end-dirname
     ldx #<dirname
     ldy #>dirname
-    jsr KERNAL_SETNAM // set filename "$"
-    lda drive
-    sta DEVICE_NUMBER
-    lda #$60
-    sta SECONDARY_ADDRESS // secondary chn
-    jsr $f3d5      // open for serial bus devices
-    jsr $f219      // set input device
-    ldy #$04
-labl1:
-    jsr SERIAL_READ_BYTE // input byte on serial bus
+    jsr $ffbd      // call setnam
+    lda #$02       // filenumber 2
+    ldx drive       // default to device number 8
+    ldy #$00      // secondary address 0 (required for dir reading!)
+    jsr $ffba      // call setlfs
+    jsr $ffc0      // call open (open the directory)      
+    bcs error     // quit if open failed
+    ldx #$02       // filenumber 2
+    jsr $ffc6      // call chkin
+    ldy #$04       // skip 4 bytes on the first dir line
+    bne skip2
+next:
+    ldy #$02       // skip 2 bytes on all other lines
+skip2:  
+    jsr getbyte    // get a byte from dir and ignore it
     dey
-    bne labl1      // get rid of y bytes
-    lda $c6        // key pressed?
-    ora $90        // or eof?
-    bne labl2      // if yes exit
-    jsr SERIAL_READ_BYTE // now get in ax the dimension
-    tax            // of the file
-    jsr SERIAL_READ_BYTE
-    jsr $bdcd      // print number from ax
-    lda #$20
+    bne skip2
+
+    jsr getbyte    // get low byte of basic line number
+    tay
+    jsr getbyte    // get high byte of basic line number
+    pha
+    tya            // transfer y to x without changing akku
+    tax
+    pla
+    jsr $bdcd      // print basic line number
+    lda #$20       // print a space first
+char:
+    jsr $ffd2      // call chrout (print character)
+    jsr getbyte
+    bne char      // continue until end of line
+
+    lda #$0d
+    jsr $ffd2      // print return
+    jsr $ffe1      // run/stop pressed?
+    bne next      // no run/stop -> continue
+error:
+    // akkumulator contains basic error code
+    // most likely error:
+    // a = $05 (device not present)
+exit:
+    lda #$02       // filenumber 2
+    jsr $ffc3      // call close
+    jsr $ffcc     // call clrchn
+
+    lda #$0d
     jsr KERNAL_CHROUT
-labl3:
-    jsr SERIAL_READ_BYTE // now the filename
-    jsr $e716      // put a character to screen
-    bne labl3      // while not 0 encountered
-    jsr $aad7      // put a cr , end line
-    ldy #$02       // set 2 bytes to skip
-    bne labl1      // repeat
-labl2:
-    jsr $f642      // close serial bus device
-    jsr $f6f3      // restore i/o devices to default
-    lda #13
-    jsr KERNAL_CHROUT
+
     jsr show_drive_status
+
     ldx #$00
 labl22:
     lda dir_presskey,x
-    beq labl4
+    beq sdlabl4
     jsr KERNAL_CHROUT
     inx
     jmp labl22
-labl4:
+
+sdlabl4:
     jsr KERNAL_WAIT_KEY
-    beq labl4
+    beq sdlabl4
     rts
+
+getbyte:
+    jsr $ffb7      // call readst (read status byte)
+    bne end       // read error or end of file
+    jmp $ffcf      // call chrin (read byte from directory)
+end:
+    pla            // don't return to dir reading loop
+    pla
+    jmp exit
 
 dirname:
 .text "$"
+dirname_end:
 dir_presskey:
 .encoding "screencode_mixed"
 .byte 13
@@ -1723,10 +1763,10 @@ sv_labl4:
     sta zp_pointer_lo
     lda #>tracker_data_start
     sta zp_pointer_hi
-    ldx #<tracker_data_end // Set End Address 
-    ldy #>tracker_data_end 
+    ldx #<tracker_data_end // Set End Address
+    ldy #>tracker_data_end
     lda #<zp_pointer_lo
-    jsr KERNAL_SAVE 
+    jsr KERNAL_SAVE
     lda #13
     jsr KERNAL_CHROUT
     jsr KERNAL_CHROUT
@@ -1818,50 +1858,72 @@ efc_check_y_hit: // Y (Yes New Memory)
     // Yes hit... erase the file
 erase_file:
     jsr convert_filename
-    //lda #filename_length
-    //PrintHex(1,1)
     ldx #$00
 ef_cpfn:
     lda filename_save,x
-    sta ef_cmd+2,x
+    sta ef_cmd+3,x
     inx
-    cpx #filename_length
+    cpx filename_length
     bne ef_cpfn
-    lda #$0d
-    sta ef_cmd+2,x
-
-    lda #$00
+    inx
+    inx
+    inx
+    stx zp_temp
+    ClearScreen(BLACK)
     ldx #$00
-    ldy #$00
-    jsr $ffbd     // call setnam (no filename)
-    lda #$0f      // file number 15
-    ldx drive     // default to drive
-    ldy #$0f      // secondary address 15
-    jsr $ffba     // call setlfs
-    jsr $ffc0     // call open
-    bcs ef_close  // if carry set, the file could not be opened
-    ldx #$0f      // filenumber 15
-    jsr $ffc9     // call chkout (file 15 now used as output)
-    ldy #$00
-ef_loop:
-    lda ef_cmd,y   // get byte from command string
-    jsr $ffd2     // call chrout (send byte through command channel)
-    iny
-    cpy #$12
-    bne ef_loop
-ef_close:
-    lda #$0f      // filenumber 15
-    jsr $ffc3     // call close
-    jsr $ffcc     // call clrchn
-
+efw_print1:
+    lda ef_text,x
+    jsr KERNAL_CHROUT
+    inx
+    cpx #$08
+    bne efw_print1
+    ldx#$00
+efw_print2:
+    lda ef_cmd,x
+    jsr KERNAL_CHROUT
+    inx
+    stx zp_temp2
+    lda zp_temp
+    cmp zp_temp2
+    bne efw_print2
+    lda #$0d
+    jsr KERNAL_CHROUT
+    jsr KERNAL_CHROUT
+    lda zp_temp
+    ldx #<ef_cmd
+    ldy #>ef_cmd
+    jsr $FFBD     // call SETNAM
+    lda #$0F      // file number 15 
+    ldx $BA       // last used device number 
+    bne ef2skip 
+    ldx drive     // default to device 8 
+ef2skip:
+    ldy #$0F      // secondary address 15 
+    jsr $FFBA     // call SETLFS 
+    jsr $FFC0     // call OPEN
     jsr show_drive_status
-
+    bcc ef2_noerror     // if carry set, the file could not be opened 
+    // Accumulator contains BASIC error code 
+    // most likely errors: 
+    // A = $05 (DEVICE NOT PRESENT) 
+    // ... error handling for open errors ... 
+ef2_noerror:
+    lda #$0F      // filenumber 15 
+    jsr $FFC3     // call CLOSE 
+    jsr $FFCC     // call CLRCHN
+ef_out:
+    jsr KERNAL_WAIT_KEY
+    beq ef_out
     rts
-    
+
+ef_text:
+.encoding "screencode_mixed"
+.text "ERASING "
+ef_text_end:
 ef_cmd:
-.text "s:" // command string
-.byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-.byte $0d  // carriage return, needed if more than one command is sent
+.text "S0:" // command string
+.byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ef_cmd_end:
 
 ////////////////////////////////////////////////////
 // Show Drive Status
@@ -1883,7 +1945,7 @@ sds_loop:
     lda $90       // get status flags
     bne sds_eof   // either eof or error
     jsr $ffa5     // call iecin (get byte from iec bus)
-    jsr $ffd2     // call chrout (print byte to screen)
+    jsr KERNAL_CHROUT     // call chrout (print byte to screen)
     jmp sds_loop  // next byte
 sds_eof:
     jsr $ffab     // call untlk
@@ -2147,7 +2209,7 @@ cpb_1:
     sta zp_pointer_hi
     dex
     cpx #$00
-    beq cpb_2    
+    beq cpb_2
     jmp cpb_1
 cpb_2:
     lda zp_pointer_lo

@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker (VARS)
 //
-// Version: 1.8
+// Version: 1.9
 // Author: Deadline
 //
 // 2019 CityXen
@@ -74,7 +74,9 @@
 .const max_joystick_control_modes = $01
     // Joystick control modes: (ALL JOYSTICK FUNCS ARE ON PORT 2)
     // 0 = OFF: off
-    // 1 = PLAY MODE: Joystick button plays
-    // 2 = FREESTYLE MODE: Joystick directions toggle relays 1-4 directions + button toggle relays 5-8
-    // 3 = TRACKER MODE: Joystick UP and DOWN control play of tracker
-    // 4 = EDIT MODE: Directions move cursor on pattern editor, fire toggles relay bit
+    // 1 = PLAY: Joystick button plays
+    // TODO:
+    // 2 = SS: Fire toggles playback (start / stop)
+    // 3 = FREE: Joystick directions toggle relays 1-4 directions + button toggle relays 5-8
+    // 4 = TRAK: Joystick UP and DOWN control play of tracker
+    // 5 = EDIT: Directions move cursor on pattern editor, fire toggles relay bit

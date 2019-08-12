@@ -1,6 +1,6 @@
 # Relay Tracker - Commodore 64 Version
 
-Version: 1.8
+Version: 1.9
 
 Author: Deadline
 
@@ -12,7 +12,7 @@ Notes: If you're going to attempt to compile this, you'll need the Macros and Co
 
 Relay Tracker Data is located from $4000 - $9fff
 
-Functions that work:
+Commands:
 
 D - change drive number (toggles between drives 08,09,10,11)
 
@@ -23,6 +23,8 @@ $ - shows directory of current disk
 S - saves data to filename on drive
 
 L - loads data from filename from drive
+
+E - Erase File
 
 F1 - Moves Track Block Cursor UP
 
@@ -72,6 +74,3 @@ C - Change Command (Current commands: SPEED, STOP)
 = - Change Command Data Down
 
 SPACE - Play/Pause
-
-E - Erase File (TODO: This function does not work yet)
-
