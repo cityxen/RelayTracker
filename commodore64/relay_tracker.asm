@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker
 //
-// Version: 1.9
+// Version: 2.0
 // Author: Deadline
 //
 // 2019 CityXen
@@ -167,9 +167,28 @@ check_n_hit:
 // S (Save File)
 check_s_hit:
     cmp #$53
-    bne check_colon_hit
+    bne check_v_hit
     jsr save_file
     jsr draw_screen
+    jmp mainloop
+//////////////////////////////////////////////////
+// V (Toggle VIC-Rel mode)
+check_v_hit:
+    cmp #$56
+    bne check_colon_hit
+    inc vic_rel_mode
+    lda vic_rel_mode
+    cmp #$02
+    bne v_mode_ok
+    lda #$00
+    sta vic_rel_mode
+v_mode_ok:
+    clc
+    lda vic_rel_mode
+    adc #48
+    sta $44a
+    jsr draw_screen
+    jsr draw_current_relays
     jmp mainloop
 //////////////////////////////////////////////////
 // COLON (Change Pattern DOWN)
@@ -722,6 +741,8 @@ init_fn_loop:
     sta playback_speed
     lda #$00
     sta playback_speed_counter
+    lda #$00
+    sta vic_rel_mode
     rts
 
 initial_filename:
@@ -869,26 +890,32 @@ ds_fn_2:
     jsr refresh_pattern // Update pattern
     jsr draw_current_relays
     jsr draw_jcm
+    lda vic_rel_mode
+    adc #47
+    sta $44a
     rts
 
 ////////////////////////////////////////////////////
 // Draw Relays Macro
 .macro DrawRelays(xpos,ypos) { // Macro for drawing relay settings
+
+    ldy vic_rel_mode
+
     pha
     clc
     lsr
     tax
     bcc dr_1_1
     lda #90
-    sta SCREEN_RAM+xpos+ypos*40
+    sta SCREEN_RAM+xpos+ypos*40,y
     lda #02
-    sta COLOR_RAM+xpos+ypos*40
+    sta COLOR_RAM+xpos+ypos*40,y
     jmp dr_1_2
 dr_1_1:
     lda #94
-    sta SCREEN_RAM+xpos+ypos*40
+    sta SCREEN_RAM+xpos+ypos*40,y
     lda #11
-    sta COLOR_RAM+xpos+ypos*40
+    sta COLOR_RAM+xpos+ypos*40,y
 dr_1_2:
     clc
     txa
@@ -896,15 +923,15 @@ dr_1_2:
     tax
     bcc dr_2_1
     lda #90
-    sta SCREEN_RAM+1+xpos+ypos*40
+    sta SCREEN_RAM+1+xpos+ypos*40,y
     lda #02
-    sta COLOR_RAM+1+xpos+ypos*40
+    sta COLOR_RAM+1+xpos+ypos*40,y
     jmp dr_2_2
 dr_2_1:
     lda #94
-    sta SCREEN_RAM+1+xpos+ypos*40
+    sta SCREEN_RAM+1+xpos+ypos*40,y
     lda #11
-    sta COLOR_RAM+1+xpos+ypos*40
+    sta COLOR_RAM+1+xpos+ypos*40,y
 dr_2_2:
     clc
     txa
@@ -912,15 +939,15 @@ dr_2_2:
     tax
     bcc dr_3_1
     lda #90
-    sta SCREEN_RAM+2+xpos+ypos*40
+    sta SCREEN_RAM+2+xpos+ypos*40,y
     lda #02
-    sta COLOR_RAM+2+xpos+ypos*40
+    sta COLOR_RAM+2+xpos+ypos*40,y
     jmp dr_3_2
 dr_3_1:
     lda #94
-    sta SCREEN_RAM+2+xpos+ypos*40
+    sta SCREEN_RAM+2+xpos+ypos*40,y
     lda #11
-    sta COLOR_RAM+2+xpos+ypos*40
+    sta COLOR_RAM+2+xpos+ypos*40,y
 dr_3_2:
     clc
     txa
@@ -928,15 +955,15 @@ dr_3_2:
     tax
     bcc dr_4_1
     lda #90
-    sta SCREEN_RAM+3+xpos+ypos*40
+    sta SCREEN_RAM+3+xpos+ypos*40,y
     lda #02
-    sta COLOR_RAM+3+xpos+ypos*40
+    sta COLOR_RAM+3+xpos+ypos*40,y
     jmp dr_4_2
 dr_4_1:
     lda #94
-    sta SCREEN_RAM+3+xpos+ypos*40
+    sta SCREEN_RAM+3+xpos+ypos*40,y
     lda #11
-    sta COLOR_RAM+3+xpos+ypos*40
+    sta COLOR_RAM+3+xpos+ypos*40,y
 dr_4_2:
     clc
     txa
@@ -944,15 +971,15 @@ dr_4_2:
     tax
     bcc dr_5_1
     lda #90
-    sta SCREEN_RAM+4+xpos+ypos*40
+    sta SCREEN_RAM+4+xpos+ypos*40,y
     lda #02
-    sta COLOR_RAM+4+xpos+ypos*40
+    sta COLOR_RAM+4+xpos+ypos*40,y
     jmp dr_5_2
 dr_5_1:
     lda #94
-    sta SCREEN_RAM+4+xpos+ypos*40
+    sta SCREEN_RAM+4+xpos+ypos*40,y
     lda #11
-    sta COLOR_RAM+4+xpos+ypos*40
+    sta COLOR_RAM+4+xpos+ypos*40,y
 dr_5_2:
     clc
     txa
@@ -960,31 +987,33 @@ dr_5_2:
     tax
     bcc dr_6_1
     lda #90
-    sta SCREEN_RAM+5+xpos+ypos*40
+    sta SCREEN_RAM+5+xpos+ypos*40,y
     lda #02
-    sta COLOR_RAM+5+xpos+ypos*40
+    sta COLOR_RAM+5+xpos+ypos*40,y
     jmp dr_6_2
 dr_6_1:
     lda #94
-    sta SCREEN_RAM+5+xpos+ypos*40
+    sta SCREEN_RAM+5+xpos+ypos*40,y
     lda #11
-    sta COLOR_RAM+5+xpos+ypos*40
+    sta COLOR_RAM+5+xpos+ypos*40,y
 dr_6_2:
+    cpy #$01
+    beq dr_8_2
     clc
     txa
     lsr
     tax
     bcc dr_7_1
     lda #90
-    sta SCREEN_RAM+6+xpos+ypos*40
+    sta SCREEN_RAM+6+xpos+ypos*40,y
     lda #02
-    sta COLOR_RAM+6+xpos+ypos*40
+    sta COLOR_RAM+6+xpos+ypos*40,y
     jmp dr_7_2
 dr_7_1:
     lda #94
-    sta SCREEN_RAM+6+xpos+ypos*40
+    sta SCREEN_RAM+6+xpos+ypos*40,y
     lda #11
-    sta COLOR_RAM+6+xpos+ypos*40
+    sta COLOR_RAM+6+xpos+ypos*40,y
 dr_7_2:
     clc
     txa
@@ -992,15 +1021,15 @@ dr_7_2:
     tax
     bcc dr_8_1
     lda #90
-    sta SCREEN_RAM+7+xpos+ypos*40
+    sta SCREEN_RAM+7+xpos+ypos*40,y
     lda #02
-    sta COLOR_RAM+7+xpos+ypos*40
+    sta COLOR_RAM+7+xpos+ypos*40,y
     jmp dr_8_2
 dr_8_1:
     lda #94
-    sta SCREEN_RAM+7+xpos+ypos*40
+    sta SCREEN_RAM+7+xpos+ypos*40,y
     lda #11
-    sta COLOR_RAM+7+xpos+ypos*40
+    sta COLOR_RAM+7+xpos+ypos*40,y
 dr_8_2:
     pla
 }
@@ -1964,8 +1993,19 @@ draw_current_relays:
     DrawRelays(7,17)      // Draw current relay at top right of screen
     DrawRelays(7,1)      // Draw current relay at current in track pattern cursor position
     PrintHex(18,17)       // Print hex value of current relay in track pattern cursor position
+
+    lda vic_rel_mode
+    cmp #$00
+    bne vic_rel_mode_on
+    ldx #$00
+    lda (zp_pointer_lo,x)
     eor #$ff              // Relay block is actually inverse of what is shown on screen
-    sta USER_PORT_DATA    // Set Actual USER Port relays
+    sta USER_PORT_DATA
+    rts
+vic_rel_mode_on:
+    ldx #$00
+    lda (zp_pointer_lo,x)
+    sta USER_PORT_DATA
     rts
 
 ////////////////////////////////////////////////////

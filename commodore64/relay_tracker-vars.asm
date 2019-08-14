@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker (VARS)
 //
-// Version: 1.9
+// Version: 2.0
 // Author: Deadline
 //
 // 2019 CityXen
@@ -80,3 +80,7 @@
     // 3 = FREE: Joystick directions toggle relays 1-4 directions + button toggle relays 5-8
     // 4 = TRAK: Joystick UP and DOWN control play of tracker
     // 5 = EDIT: Directions move cursor on pattern editor, fire toggles relay bit
+
+
+// VIC-Rel Mode
+.var vic_rel_mode            = $41f0

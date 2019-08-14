@@ -1,6 +1,6 @@
 # Relay Tracker - Commodore 64 Version
 
-Version: 1.9
+Version: 2.0
 
 Author: Deadline
 
@@ -74,3 +74,6 @@ C - Change Command (Current commands: SPEED, STOP)
 = - Change Command Data Down
 
 SPACE - Play/Pause
+
+V - VIC-Rel mode (On or Off)
+
