@@ -1,16 +1,14 @@
 # Relay Tracker - Commodore 64 Version
 
-Version: 2.0
+Version: 2.0 by Deadline
 
-Author: Deadline
+This program will set the user port output for relay boards such as the VIC-Rel, or 8 channel relay boards.
 
-Up to 256 Tracks
+Up to 256 Tracks, Up to 31 Patterns of 256 different states, Speed up or Slow down during playback, control additional daisy chained machines running relay tracker using joystick control mode (JCM).
 
-Up to 31 Patterns of 256 different states
+Schematics for 8 channel relay board, and JCM mode are in the schematics folder.
 
-Notes: If you're going to attempt to compile this, you'll need the Macros and Constants from https://github.com/cityxen/Commodore64_Programming repo
-
-Relay Tracker Data is located from $4000 - $9fff
+Notes: If you're going to attempt to compile this, you'll need the Macros and Constants from https://github.com/cityxen/Commodore64_Programming repo. Relay Tracker Data is located from $4000 - $9fff
 
 ## Commands:
 
@@ -88,9 +86,6 @@ J - Toggle Joystick Control Mode (JCM Modes: OFF,PLAY)
 
 N - Clear memory
 
-
-
 SPACE - Play/Pause
 
 V - VIC-Rel mode (On or Off)
-
