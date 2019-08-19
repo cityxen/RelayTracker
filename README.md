@@ -4,6 +4,6 @@ This program allows you to program and playback a sequence of states for an 8 Ch
 
 Here is a brief demo of what this looks like in operation during the early stages of development: https://www.youtube.com/watch?v=qtZTxJKP-fk
 
-Commodore 64 Version 1.9: All commands now working
+Commodore 64 Version 2.0: All commands now working, VIC-Rel support added
 
-![C64Version](https://github.com/cityxen/RelayTracker/blob/master/commodore64/screenshots/relay_tracker-image-actual-v1.9-1-tn.png)
+![C64Version](https://github.com/cityxen/RelayTracker/blob/master/commodore64/screenshots/relay_tracker-image-actual-v2.0-1-tn.png)
