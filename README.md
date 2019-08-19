@@ -7,3 +7,7 @@ Here is a brief demo of what this looks like in operation during the early stage
 Commodore 64 Version 2.0: All commands now working, VIC-Rel support added
 
 ![C64Version](https://github.com/cityxen/RelayTracker/blob/master/commodore64/screenshots/relay_tracker-image-actual-v2.0-1-tn.png)
+
+Atari 800XL Version pre-alpha: Started folder, looking at how to get it started
+
+Python Version pre-alpha: Started folder, looking at how to get it started
