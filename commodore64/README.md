@@ -12,7 +12,9 @@ Notes: If you're going to attempt to compile this, you'll need the Macros and Co
 
 Relay Tracker Data is located from $4000 - $9fff
 
-Commands:
+## Commands:
+
+### Storage
 
 D - change drive number (toggles between drives 08,09,10,11)
 
@@ -26,17 +28,25 @@ L - loads data from filename from drive
 
 E - Erase File
 
+### Track
+
 F1 - Moves Track Block Cursor UP
 
 F3 - Moves Track Block Cursor DOWN
+
+F2 - Track Block Length DOWN
+
+F4 - Track Block Length UP
+
+### Pattern
 
 ; - Changes Pattern for current track UP
 
 : - Changes Pattern for current track DOWN
 
-Cursor Down - Move Pattern Down
+Cursor Down - Move Pattern Cursor Down
 
-Cursor Up - Move Pattern Up
+Cursor Up - Move Pattern Cursor Up
 
 1-8 - Toggle relay
 
@@ -52,9 +62,18 @@ F5 - Pattern Cursor Page UP
 
 F7 - Pattern Cursor Page DOWN
 
-F2 - Track Block Length DOWN
+C - Change Command
 
-F4 - Track Block Length UP
+        Command   Value
+        SPEED   = 00 - 1f (Change the speed of playback.. Lower - Faster)
+        STOP    = IGNORED (Stops playback)
+        FUTURE  = IGNORED (Future command slot available with values from 00-1f)
+
+\* - Change Command Data Value Up (Command Data range is from 00-3F)
+
+= - Change Command Data Value Down
+
+### Additional Features
 
 J - Toggle Joystick Control Mode (JCM Modes: OFF,PLAY)
 
@@ -69,16 +88,7 @@ J - Toggle Joystick Control Mode (JCM Modes: OFF,PLAY)
 
 N - Clear memory
 
-C - Change Command
 
-        Command   Value
-        SPEED   = 00 - 1f (Change the speed of playback.. Lower - Faster)
-        STOP    = IGNORED (Stops playback)
-        FUTURE  = IGNORED (Future command slot available with values from 00-1f)
-
-\* - Change Command Data Up (Command Data range is from 00-3F)
-
-= - Change Command Data Down
 
 SPACE - Play/Pause
 
