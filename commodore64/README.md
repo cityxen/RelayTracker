@@ -4,7 +4,7 @@ Version: 2.0 by Deadline
 
 This program will set the user port output for relay boards such as the VIC-Rel, or 8 channel relay boards.
 
-Up to 256 Tracks, Up to 31 Patterns of 256 different states, Speed up or Slow down during playback, control additional daisy chained machines running relay tracker using joystick control mode (JCM).
+Up to 256 Tracks, Up to 31 Patterns of 256 different states, Speed up or Slow down during playback, Stop playback with the programmable commands, control additional daisy chained machines running relay tracker using joystick control mode (JCM). No limit to the number of daisy chained relay trackers.
 
 Schematics for 8 channel relay board, and JCM mode are in the schematics folder.
 
