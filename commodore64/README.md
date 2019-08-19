@@ -57,14 +57,14 @@ F2 - Track Block Length DOWN
 F4 - Track Block Length UP
 
 J - Toggle Joystick Control Mode (JCM Modes: OFF,PLAY)
-* OFF  = Joystick doesn't affect anything
-* PLAY = While fire button is pressed, track will play
-       
-        SS,FREE,TRAK,EDIT (TODO: These JCM modes do not work yet)       
-        SS   = Fire toggles playback (start / stop)
-        FREE = Up,Down,Left,Right toggle relays 1-4 Fire+Up,Down,Left or Right, toggle relays 2-8
-        TRAK = Up Move Pattern Cursor Up, Down Move Pattern Cursor Down
-        EDIT = Move Joystick Cursor within Pattern area to move, Fire toggle relay bit
+
+        OFF  = Joystick doesn't affect anything
+        PLAY = While fire button is pressed, track will play
+        *SS   = Fire toggles playback (start / stop)
+        *FREE = Up,Down,Left,Right toggle relays 1-4 Fire+Up,Down,Left or Right, toggle relays 2-8
+        *TRAK = Up Move Pattern Cursor Up, Down Move Pattern Cursor Down
+        *EDIT = Move Joystick Cursor within Pattern area to move, Fire toggle relay bit
+        (* SS,FREE,TRAK,EDIT JCM modes do not work yet)
 
 N - Clear memory
 
