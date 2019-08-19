@@ -60,6 +60,7 @@ J - Toggle Joystick Control Mode (JCM Modes: OFF,PLAY)
 
         OFF  = Joystick doesn't affect anything
         PLAY = While fire button is pressed, track will play
+        Future modes:
         *SS   = Fire toggles playback (start / stop)
         *FREE = Up,Down,Left,Right toggle relays 1-4 Fire+Up,Down,Left or Right, toggle relays 2-8
         *TRAK = Up Move Pattern Cursor Up, Down Move Pattern Cursor Down
@@ -68,9 +69,14 @@ J - Toggle Joystick Control Mode (JCM Modes: OFF,PLAY)
 
 N - Clear memory
 
-C - Change Command (Current commands: SPEED, STOP)
+C - Change Command
 
-** - Change Command Data Up (Command Data range is from 00-3F)
+        Command   Value
+        SPEED   = 00 - 1f (Change the speed of playback.. Lower - Faster)
+        STOP    = IGNORED (Stops playback)
+        FUTURE  = IGNORED (Future command slot available with values from 00-1f)
+
+\* - Change Command Data Up (Command Data range is from 00-3F)
 
 = - Change Command Data Down
 
