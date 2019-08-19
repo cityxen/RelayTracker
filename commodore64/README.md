@@ -60,10 +60,16 @@ J - Toggle Joystick Control Mode (JCM Modes: OFF,PLAY)
 * OFF  = Joystick doesn't affect anything
 * PLAY = While fire button is pressed, track will play
 
-    (TODO: These functions do not work yet FREE,TRAK,EDIT
+    (
+        TODO: These functions do not work yet 
+
+        SS,FREE,TRAK,EDIT
+        
+        SS   = Fire toggles playback (start / stop)
         FREE = Up,Down,Left,Right toggle relays 1-4 Fire+Up,Down,Left or Right, toggle relays 2-8
         TRAK = Up Move Pattern Cursor Up, Down Move Pattern Cursor Down
-        EDIT = Move Joystick Cursor within Pattern area to move, Fire toggle relay bit )
+        EDIT = Move Joystick Cursor within Pattern area to move, Fire toggle relay bit
+    )
 
 N - Clear memory
 
