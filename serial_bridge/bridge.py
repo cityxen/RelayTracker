@@ -38,7 +38,7 @@ if(args["serial_baud"]):
 if(args["encoding"]):
     encoding    = args["encoding"]
 if(args["init_test"]):
-    init_test   = (args["init_test"] ? True : False)
+    init_test   = True if args["init_test" else False
 
 print("Using "+serial_device+" at "+serial_baud+" baud and "+encoding+" encoding")
 
