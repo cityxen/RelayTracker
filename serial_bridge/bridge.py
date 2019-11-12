@@ -133,8 +133,13 @@ print("CityXen Serial Bridge now active")
 
 counter=0
 
-if(encoding=="16_BINARY_STRING"):
+if(encoding=="16B"):
     print("ENCODING METHOD: "+args["encoding"]+" NOT IMPLEMENTED YET")
+    while True:
+        x=ser.readline()
+        for i in range(0,len(x)):
+            print(x[i])
+
 # Default Encoding method (1-8 and q-i)
 if(encoding=="DEFAULT"):
     while True:
