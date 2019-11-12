@@ -82,9 +82,12 @@ print("CityXen Serial Bridge now active")
 
 counter=0
 
-
+if(args["encoding"]):
+    print("ENCODING METHOD: "+args["encoding"]+" NOT IMPLEMENTED YET")
 # Default Encoding method (1-8 and q-i)
-if(!args["encoding"]):
+else:
+    
+
     while True:
 
         x=ser.readline()
@@ -192,9 +195,5 @@ if(!args["encoding"]):
             ser.write(b'BURmP\n\r')
             print("BURmP")
             counter=0
-
-else:
-    print("ENCODING METHOD: "+args["encoding"]+" NOT IMPLEMENTED YET")
-
 
 GPIO.cleanup()
