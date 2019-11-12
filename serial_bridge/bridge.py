@@ -8,6 +8,7 @@
 ##########################################################################################
 sb_version="1.0"
 print("CityXen Serial Bridge version %s" % (sb_version))
+print("pass -h for help")
 import RPi.GPIO as GPIO
 import time
 import serial
@@ -15,20 +16,19 @@ import argparse
 ap=argparse.ArgumentParser()
 ap.add_argument("-s","--serial_device",required=False,help="Serial Device")
 ap.add_argument("-e","--encoding",required=False,help="Encoding Method")
-ap.add_argument("-b","--ser_baud",required=False,help="Serial Baud Rate")
+ap.add_argument("-b","--serial_baud",required=False,help="Serial Baud Rate")
 args=vars(ap.parse_args())
 
+serial_device= "/dev/ttyAMA0"
+serial_baud  = 19200
 
-ap.print_help()
-
-serial_device="/dev/ttyAMA0"
-# args=len(sys.argv)-1
 if(args["serial_device"]):
-    # parm1=sys.argv[1]
     serial_device=args["serial_device"]
+if(args["serial_baud"]):
+    serial_baud = args["serial_baud"]
 
-print("Using %s" % (serial_device))
-ser = serial.Serial(serial_device,19200,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.01,rtscts=0)
+print("Using %s at %i baud" % (serial_device,serial_baud))
+ser = serial.Serial(serial_device,serial_baud,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.01,rtscts=0)
 # Note the GPIO pins for the uart device are used for serial device
 # Pin 6  Ground
 # Pin 8  TXD
