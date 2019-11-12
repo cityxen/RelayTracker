@@ -32,8 +32,11 @@ if(args["serial_device"]):
     serial_device=args["serial_device"]
 if(args["serial_baud"]):
     serial_baud = args["serial_baud"]
+if(args["encoding"]):
+    encoding    = args["encoding"]
 
-print("Using "+serial_device+" at "+serial_baud+" baud")
+print("Using "+serial_device+" at "+serial_baud+" baud and "+encoding+" encoding")
+
 ser = serial.Serial(serial_device,serial_baud,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.01,rtscts=0)
 
 GPIO.setwarnings(False) # Ignore some warnings
@@ -82,12 +85,10 @@ print("CityXen Serial Bridge now active")
 
 counter=0
 
-if(args["encoding"]):
+if(encoding):
     print("ENCODING METHOD: "+args["encoding"]+" NOT IMPLEMENTED YET")
 # Default Encoding method (1-8 and q-i)
 else:
-    
-
     while True:
 
         x=ser.readline()
