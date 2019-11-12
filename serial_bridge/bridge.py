@@ -25,8 +25,9 @@ ap.add_argument("-e","--encoding",required=False,help="Encoding Method")
 ap.add_argument("-b","--serial_baud",required=False,help="Serial Baud Rate")
 args=vars(ap.parse_args())
 
-serial_device= "/dev/ttyAMA0"
-serial_baud  = "19200"
+serial_device = "/dev/ttyAMA0"
+serial_baud   = "19200"
+encoding      = "DEFAULT"
 
 if(args["serial_device"]):
     serial_device=args["serial_device"]
@@ -85,10 +86,10 @@ print("CityXen Serial Bridge now active")
 
 counter=0
 
-if(encoding):
+if(encoding=="16_BINARY_STRING"):
     print("ENCODING METHOD: "+args["encoding"]+" NOT IMPLEMENTED YET")
 # Default Encoding method (1-8 and q-i)
-else:
+if(encoding=="DEFAULT"):
     while True:
 
         x=ser.readline()
