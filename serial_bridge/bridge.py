@@ -156,14 +156,14 @@ if(encoding=="16B"):
                 gp[36]=False if x[13]=="1" else True
                 gp[32]=False if x[14]=="1" else True
                 gp[37]=False if x[15]=="1" else True
-                
+
             set_gpio()
 
-            counter=counter+1
-            if counter > 1000:
-                ser.write(b'BURmP\n\r')
-                print("BURmP")
-                counter=0
+        counter=counter+1
+        if counter > 1000:
+            ser.write(b'BURmP\n\r')
+            print("BURmP")
+            counter=0
 
 
 # Default Encoding method (1-8 and q-i)

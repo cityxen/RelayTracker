@@ -10,4 +10,4 @@ while True:
     bout=bout.zfill(16)
     ser.write(bout.encode())
     print(bout)
-    time.sleep(1)
+    time.sleep(.3)
