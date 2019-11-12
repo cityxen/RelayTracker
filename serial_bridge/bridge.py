@@ -5,11 +5,41 @@
 # NOTE: This is subject to heavy modification, especially the way it converts the signals
 # so don't presume that the state it is in now is the way it will stay
 #
-# Note the GPIO pins for the uart device are used for serial device
+# The Serial connector board is a MAX3232 based mini board with a 9 pin dsub 
+# https://amzn.to/32G9Viv
+#
+# GPIO Pins used for the serial device 
+#
 # Pin 6  Ground
 # Pin 8  TXD
 # Pin 10 RXD
 # Pin 1  3 volt
+#
+# GPIO Pins used for the Relay Boards
+#
+# Relay Board 1
+# Pin 2  5 volt VCC Relay Board 1
+# Pin 9  Ground Relay Board 1
+# Pin 12 Relay 1
+# Pin 7  Relay 2
+# Pin 11 Relay 3
+# Pin 13 Relay 4
+# Pin 15 Relay 5
+# Pin 19 Relay 6
+# Pin 21 Relay 7
+# Pin 23 Relay 8
+#
+# Relay Board 2
+# Pin 4  5 volt VCC Relay Board 2
+# Pin 39 Ground Relay Board 2
+# Pin 16 Relay 1
+# Pin 18 Relay 2
+# Pin 22 Relay 3
+# Pin 40 Relay 4
+# Pin 38 Relay 5
+# Pin 36 Relay 6
+# Pin 32 Relay 7
+# Pin 37 Relay 8
 #
 ##########################################################################################
 sb_version="1.0"
