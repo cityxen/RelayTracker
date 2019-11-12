@@ -27,7 +27,7 @@ if(args["serial_device"]):
 if(args["serial_baud"]):
     serial_baud = args["serial_baud"]
 
-print("Using %s at %i baud" % (serial_device,serial_baud))
+print("Using %s at %d baud" % (serial_device,serial_baud))
 ser = serial.Serial(serial_device,serial_baud,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.01,rtscts=0)
 # Note the GPIO pins for the uart device are used for serial device
 # Pin 6  Ground
