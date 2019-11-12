@@ -5,6 +5,12 @@
 # NOTE: This is subject to heavy modification, especially the way it converts the signals
 # so don't presume that the state it is in now is the way it will stay
 #
+# Note the GPIO pins for the uart device are used for serial device
+# Pin 6  Ground
+# Pin 8  TXD
+# Pin 10 RXD
+# Pin 1  3 volt
+#
 ##########################################################################################
 sb_version="1.0"
 print("CityXen Serial Bridge version %s" % (sb_version))
@@ -27,18 +33,13 @@ if(args["serial_device"]):
 if(args["serial_baud"]):
     serial_baud = args["serial_baud"]
 
-print("Using %s at %d baud" % (serial_device,serial_baud))
+print("Using "+serial_device+" at "+serial_baud+" baud")
 ser = serial.Serial(serial_device,serial_baud,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.01,rtscts=0)
-# Note the GPIO pins for the uart device are used for serial device
-# Pin 6  Ground
-# Pin 8  TXD
-# Pin 10 RXD
-# Pin 1  3 volt
 
 GPIO.setwarnings(False) # Ignore some warnings
 GPIO.setmode(GPIO.BOARD)
 
-# Set up a dictionary for GPIO pins
+# Set up a dictionary for GPIO pins used for the relay up/down states
 gp = {7:False,11:False,13:False,15:False,19:False,21:False,23:False,12:False,16:False,18:False,22:False,40:False,38:False,36:False,32:False,37:False}
 
 for i in gp:
@@ -81,113 +82,119 @@ print("CityXen Serial Bridge now active")
 
 counter=0
 
-while True:
 
-    x=ser.readline()
+# Default Encoding method (1-8 and q-i)
+if(!args["encoding"]):
+    while True:
 
-    if x == '1':
-        if gp[12] == False:
-            gp[12]=True
-        else:
-            gp[12]=False
+        x=ser.readline()
 
-    if x == '2':
-        if gp[7] == False:
-            gp[7]=True
-        else:
-            gp[7]=False
+        if x == '1':
+            if gp[12] == False:
+                gp[12]=True
+            else:
+                gp[12]=False
 
-    if x == '3':
-        if gp[11] == False:
-            gp[11]=True
-        else:
-            gp[11]=False
+        if x == '2':
+            if gp[7] == False:
+                gp[7]=True
+            else:
+                gp[7]=False
 
-    if x == '4':
-        if gp[13] == False:
-            gp[13]=True
-        else:
-            gp[13]=False
+        if x == '3':
+            if gp[11] == False:
+                gp[11]=True
+            else:
+                gp[11]=False
 
-    if x == '5':
-        if gp[15] == False:
-            gp[15]=True
-        else:
-            gp[15]=False
+        if x == '4':
+            if gp[13] == False:
+                gp[13]=True
+            else:
+                gp[13]=False
 
-    if x == '6':
-        if gp[19] == False:
-            gp[19]=True
-        else:
-            gp[19]=False
+        if x == '5':
+            if gp[15] == False:
+                gp[15]=True
+            else:
+                gp[15]=False
 
-    if x == '7':
-        if gp[21] == False:
-            gp[21]=True
-        else:
-            gp[21]=False
+        if x == '6':
+            if gp[19] == False:
+                gp[19]=True
+            else:
+                gp[19]=False
 
-    if x == '8':
-        if gp[23] == False:
-            gp[23]=True
-        else:
-            gp[23]=False
+        if x == '7':
+            if gp[21] == False:
+                gp[21]=True
+            else:
+                gp[21]=False
 
-    if x == 'q':
-        if gp[16] == False:
-            gp[16]=True
-        else:
-            gp[16]=False
+        if x == '8':
+            if gp[23] == False:
+                gp[23]=True
+            else:
+                gp[23]=False
 
-    if x == 'w':
-        if gp[18] == False:
-            gp[18]=True
-        else:
-            gp[18]=False
+        if x == 'q':
+            if gp[16] == False:
+                gp[16]=True
+            else:
+                gp[16]=False
 
-    if x == 'e':
-        if gp[22] == False:
-            gp[22]=True
-        else:
-            gp[22]=False
+        if x == 'w':
+            if gp[18] == False:
+                gp[18]=True
+            else:
+                gp[18]=False
 
-    if x == 'r':
-        if gp[40] == False:
-            gp[40]=True
-        else:
-            gp[40]=False
+        if x == 'e':
+            if gp[22] == False:
+                gp[22]=True
+            else:
+                gp[22]=False
 
-    if x == 't':
-        if gp[38] == False:
-            gp[38]=True
-        else:
-            gp[38]=False
+        if x == 'r':
+            if gp[40] == False:
+                gp[40]=True
+            else:
+                gp[40]=False
 
-    if x == 'y':
-        if gp[36] == False:
-            gp[36]=True
-        else:
-            gp[36]=False
+        if x == 't':
+            if gp[38] == False:
+                gp[38]=True
+            else:
+                gp[38]=False
 
-    if x == 'u':
-        if gp[32] == False:
-            gp[32]=True
-        else:
-            gp[32]=False
+        if x == 'y':
+            if gp[36] == False:
+                gp[36]=True
+            else:
+                gp[36]=False
 
-    if x == 'i':
-        if gp[37] == False:
-            gp[37]=True
-        else:
-            gp[37]=False
+        if x == 'u':
+            if gp[32] == False:
+                gp[32]=True
+            else:
+                gp[32]=False
 
-    set_gpio()
+        if x == 'i':
+            if gp[37] == False:
+                gp[37]=True
+            else:
+                gp[37]=False
 
-    counter=counter+1
-    if counter > 1000:
-        ser.write(b'BURmP\n\r')
-        print("BURmP")
-        counter=0
+        set_gpio()
+
+        counter=counter+1
+        if counter > 1000:
+            ser.write(b'BURmP\n\r')
+            print("BURmP")
+            counter=0
+
+else:
+    print("ENCODING METHOD: "+args["encoding"]+" NOT IMPLEMENTED YET")
 
 
 GPIO.cleanup()
