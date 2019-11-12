@@ -2,23 +2,31 @@
 # CityXen 16 Relay Board Serial Bridge Program
 # by Deadline
 #
+# NOTE: This is subject to heavy modification, especially the way it converts the signals
+# so don't presume that the state it is in now is the way it will stay
+#
 ##########################################################################################
 sb_version="1.0"
 
 import RPi.GPIO as GPIO
 import time
 import serial
-import sys
+import argparse
+ap=argparse.ArgumentParser()
+ap.add_argument("-s","--serial_device",required=False,help="Serial Device")
+ap.add_argument("-e","--encoding",required=False,help="Encoding Method")
+ap.add_argument("-b","--ser_baud",required=False,help="Serial Baud Rate")
+args=vars(ap.parse_args())
 
 print("CityXen Serial Bridge version %s" % (sb_version))
 print("USAGE: python bridge.py [serial_device (default is /dev/ttyAMA0)]")
 print("EXAMPLE: python bridge.py /dev/ttyUSB0")
 
 serial_device="/dev/ttyAMA0"
-args=len(sys.argv)-1
-if(args==1):
-    parm1=sys.argv[1]
-    serial_device=parm1
+# args=len(sys.argv)-1
+if(args["serial_device"]):
+    # parm1=sys.argv[1]
+    serial_device=args["serial_device"]
 
 print("Using %s" % (serial_device))
 ser = serial.Serial(serial_device,19200,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.01,rtscts=0)
@@ -184,4 +192,3 @@ while True:
 
 
 GPIO.cleanup()
-
