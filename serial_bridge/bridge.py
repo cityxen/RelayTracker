@@ -3,20 +3,24 @@
 # by Deadline
 #
 ##########################################################################################
+sb_version="1.0"
 
 import RPi.GPIO as GPIO
 import time
 import serial
 import sys
 
+print("CityXen Serial Bridge version %s" % (sb_version))
+print("USAGE: python bridge.py [serial_device (default is /dev/ttyAMA0)]")
+print("EXAMPLE: python bridge.py /dev/ttyUSB0")
+
 args=len(sys.argv)-1
-print("Args: %i" % (args))
 scriptname=sys.argv[0]
 parm1=sys.argv[1]
 
 serial_device="/dev/ttyAMA0"
 if(args==1):
-    serial_device=parm1 #"/dev/ttyUSB0"
+    serial_device=parm1
 
 print("Using %s" % (serial_device))
 ser = serial.Serial(serial_device,19200,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.01,rtscts=0)
