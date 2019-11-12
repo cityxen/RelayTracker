@@ -10,7 +10,7 @@ import serial
 import sys
 
 args=len(sys.argv)-1
-print("Args: %i",args)
+print("Args: %i" % (args))
 scriptname=sys.argv[0]
 parm1=sys.argv[1]
 
@@ -18,7 +18,7 @@ print parm1
 
 #serial_device="/dev/ttyUSB0"
 serial_device="/dev/ttyAMA0"
-print("Using %s",serial_device)
+print("Using %s" % (serial_device))
 ser = serial.Serial(serial_device,19200,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.01,rtscts=0)
 # Note the GPIO pins for the uart device are used for serial device
 # Pin 6  Ground
