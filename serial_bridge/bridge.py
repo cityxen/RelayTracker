@@ -38,7 +38,7 @@ if(args["serial_baud"]):
 if(args["encoding"]):
     encoding    = args["encoding"]
 if(args["init_test"]):
-    init_test   = True if args["init_test"] else False
+    init_test   = True if args["init_test"]==1 else False
 
 print("Using "+serial_device+" at "+serial_baud+" baud and "+encoding+" encoding")
 
@@ -81,12 +81,10 @@ def test_sequence():
 if(init_test):
     print("Initialization Test")
     # Do a quick system test
-    all_on()
-    set_gpio()
-    time.sleep(1)
-    all_off()
-    set_gpio()
     test_sequence()
+
+all_off()
+set_gpio()
 
 ser.write(b'CityXen Serial Bridge now active\n\r')
 print("CityXen Serial Bridge now active")
