@@ -14,6 +14,8 @@ print("Args: %i",args)
 scriptname=sys.argv[0]
 parm1=sys.argv[1]
 
+print parm1
+
 #serial_device="/dev/ttyUSB0"
 serial_device="/dev/ttyAMA0"
 print("Using %s",serial_device)
