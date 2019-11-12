@@ -7,7 +7,7 @@
 #
 ##########################################################################################
 sb_version="1.0"
-
+print("CityXen Serial Bridge version %s" % (sb_version))
 import RPi.GPIO as GPIO
 import time
 import serial
@@ -18,9 +18,8 @@ ap.add_argument("-e","--encoding",required=False,help="Encoding Method")
 ap.add_argument("-b","--ser_baud",required=False,help="Serial Baud Rate")
 args=vars(ap.parse_args())
 
-print("CityXen Serial Bridge version %s" % (sb_version))
-print("USAGE: python bridge.py [serial_device (default is /dev/ttyAMA0)]")
-print("EXAMPLE: python bridge.py /dev/ttyUSB0")
+
+ap.print_help()
 
 serial_device="/dev/ttyAMA0"
 # args=len(sys.argv)-1
