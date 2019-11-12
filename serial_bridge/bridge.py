@@ -14,12 +14,10 @@ print("CityXen Serial Bridge version %s" % (sb_version))
 print("USAGE: python bridge.py [serial_device (default is /dev/ttyAMA0)]")
 print("EXAMPLE: python bridge.py /dev/ttyUSB0")
 
-args=len(sys.argv)-1
-scriptname=sys.argv[0]
-parm1=sys.argv[1]
-
 serial_device="/dev/ttyAMA0"
+args=len(sys.argv)-1
 if(args==1):
+    parm1=sys.argv[1]
     serial_device=parm1
 
 print("Using %s" % (serial_device))
