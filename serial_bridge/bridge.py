@@ -137,6 +137,7 @@ if(encoding=="16B"):
     print("ENCODING METHOD: "+args["encoding"]+" NOT IMPLEMENTED YET")
     while True:
         x=ser.readline()
+        print("IN:")
         for i in range(0,len(x)):
             print(x[i])
 
