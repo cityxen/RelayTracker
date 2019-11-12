@@ -7,8 +7,17 @@
 #
 # The Serial connector board is a MAX3232 based mini board with a 9 pin dsub 
 # https://amzn.to/32G9Viv
+# 
+# Null modem required to work with Amiga serial port
+# https://amzn.to/32BrHDC
 #
-# GPIO Pins used for the serial device 
+# 8 Channel Relay Board
+# https://amzn.to/2Xwerh4
+#
+# Prototype Wiring 
+# https://amzn.to/2LHDNX9
+#
+# GPIO Pins used for the serial device
 #
 # Pin 6  Ground
 # Pin 8  TXD
