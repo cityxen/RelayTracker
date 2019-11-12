@@ -1,20 +1,37 @@
+##########################################################################################
 # CityXen 16 Relay Board Serial Bridge Program
+# by Deadline
+#
+##########################################################################################
+
 import RPi.GPIO as GPIO
 import time
 import serial
+import sys
 
-GPIO.setwarnings(False)
+args=len(sys.argv)-1
+print("Args: %i",args)
+scriptname=sys.argv[0]
+parm1=sys.argv[1]
 
-ser = serial.Serial('/dev/ttyAMA0',19200,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.01,rtscts=0)
-#'/dev/ttyUSB0',19200,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.01,rtscts=0)
+#serial_device="/dev/ttyUSB0"
+serial_device="/dev/ttyAMA0"
+print("Using %s",serial_device)
+ser = serial.Serial(serial_device,19200,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.01,rtscts=0)
+# Note the GPIO pins for the uart device are used for serial device
+# Pin 6  Ground
+# Pin 8  TXD
+# Pin 10 RXD
+# Pin 1  3 volt
 
+GPIO.setwarnings(False) # Ignore some warnings
 GPIO.setmode(GPIO.BOARD)
 
-gpm={}
+# Set up a dictionary for GPIO pins
 gp = {7:False,11:False,13:False,15:False,19:False,21:False,23:False,12:False,16:False,18:False,22:False,40:False,38:False,36:False,32:False,37:False}
 
 for i in gp:
-    GPIO.setup(i, GPIO.OUT)
+    GPIO.setup(i, GPIO.OUT) # Set pins to out
 
 def set_gpio():
     global gp
