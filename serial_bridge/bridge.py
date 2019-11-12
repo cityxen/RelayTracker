@@ -5,6 +5,9 @@
 # NOTE: This is subject to heavy modification, especially the way it converts the signals
 # so don't presume that the state it is in now is the way it will stay
 #
+# Raspberry Pi (Any model with 40 GPIO should work)
+# https://amzn.to/34X5Xnj
+#
 # The Serial connector board is a MAX3232 based mini board with a 9 pin dsub 
 # https://amzn.to/32G9Viv
 # 
