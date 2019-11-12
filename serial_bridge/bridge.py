@@ -23,11 +23,13 @@ ap=argparse.ArgumentParser()
 ap.add_argument("-s","--serial_device",required=False,help="Serial Device")
 ap.add_argument("-e","--encoding",required=False,help="Encoding Method")
 ap.add_argument("-b","--serial_baud",required=False,help="Serial Baud Rate")
+ap.add_argument("-t","--init_test",required=False,help="Test all relays on startup")
 args=vars(ap.parse_args())
 
 serial_device = "/dev/ttyAMA0"
 serial_baud   = "19200"
 encoding      = "DEFAULT"
+init_test     = False
 
 if(args["serial_device"]):
     serial_device=args["serial_device"]
@@ -35,6 +37,8 @@ if(args["serial_baud"]):
     serial_baud = args["serial_baud"]
 if(args["encoding"]):
     encoding    = args["encoding"]
+if(args["init_test"]):
+    init_test   = (args["init_test"] ? True : False)
 
 print("Using "+serial_device+" at "+serial_baud+" baud and "+encoding+" encoding")
 
@@ -73,13 +77,16 @@ def test_sequence():
         gp[i]=True
         set_gpio()
 
-# Do a quick system test
-all_on()
-set_gpio()
-time.sleep(1)
-all_off()
-set_gpio()
-test_sequence()
+
+if(init_test):
+    print("Initialization Test")
+    # Do a quick system test
+    all_on()
+    set_gpio()
+    time.sleep(1)
+    all_off()
+    set_gpio()
+    test_sequence()
 
 ser.write(b'CityXen Serial Bridge now active\n\r')
 print("CityXen Serial Bridge now active")
