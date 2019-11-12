@@ -26,7 +26,7 @@ ap.add_argument("-b","--serial_baud",required=False,help="Serial Baud Rate")
 args=vars(ap.parse_args())
 
 serial_device= "/dev/ttyAMA0"
-serial_baud  = 19200
+serial_baud  = "19200"
 
 if(args["serial_device"]):
     serial_device=args["serial_device"]
