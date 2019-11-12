@@ -137,9 +137,34 @@ if(encoding=="16B"):
     print("ENCODING METHOD: "+args["encoding"]+" NOT IMPLEMENTED YET")
     while True:
         x=ser.readline()
-        print("IN STRLEN:"+str(len(x)))
-        for i in range(0,len(x)):
-            print(x[i])
+        if(len(x)==16):
+            print("IN STRLEN:"+str(len(x)))
+            for i in range(0,len(x)):
+                gp[12]=False if x[0] =="1" else True
+                gp[7] =False if x[1] =="1" else True
+                gp[11]=False if x[2] =="1" else True
+                gp[13]=False if x[3] =="1" else True
+                gp[15]=False if x[4] =="1" else True
+                gp[19]=False if x[5] =="1" else True
+                gp[21]=False if x[6] =="1" else True
+                gp[23]=False if x[7] =="1" else True
+                gp[16]=False if x[8] =="1" else True
+                gp[18]=False if x[9] =="1" else True
+                gp[22]=False if x[10]=="1" else True
+                gp[40]=False if x[11]=="1" else True
+                gp[38]=False if x[12]=="1" else True
+                gp[36]=False if x[13]=="1" else True
+                gp[32]=False if x[14]=="1" else True
+                gp[37]=False if x[15]=="1" else True
+                
+            set_gpio()
+
+            counter=counter+1
+            if counter > 1000:
+                ser.write(b'BURmP\n\r')
+                print("BURmP")
+                counter=0
+
 
 # Default Encoding method (1-8 and q-i)
 if(encoding=="DEFAULT"):
