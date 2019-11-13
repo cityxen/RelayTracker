@@ -13,7 +13,7 @@ Here is a brief demo of what this looks like in operation during the early stage
 ## Raspberry Pi Serial Bridge
 
 Python code for taking in serial input and converting it to GPIO up/down signals
-Added bride.py
+Added bridge.py
 
 ## Atari 800XL Version pre-alpha
 

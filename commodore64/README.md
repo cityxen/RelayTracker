@@ -1,6 +1,6 @@
 # Relay Tracker - Commodore 64 Version
 
-Version: 2.1 by Deadline
+Version: 2.0 by Deadline
 
 This program will set the user port output for relay boards such as the VIC-Rel, or 8 channel relay boards.
 
@@ -63,7 +63,7 @@ F7 - Pattern Cursor Page DOWN
 C - Change Command
 
         Command   Value
-        SPEED   = 00 - 1f (Change the speed of playback.. Lower - Faster)
+        SPEED   = 00 - 1f (Change the speed of playback.. Lower = Faster)
         STOP    = IGNORED (Stops playback)
         FUTURE  = IGNORED (Future command slot available with values from 00-1f)
 
