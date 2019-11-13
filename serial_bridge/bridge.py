@@ -84,7 +84,7 @@ if(args["init_test"]):
 
 print("Using "+serial_device+" at "+serial_baud+" baud and "+encoding+" encoding")
 
-ser = serial.Serial(serial_device,serial_baud,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=None,rtscts=0)
+ser = serial.Serial(serial_device,serial_baud,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.001,rtscts=0)
 
 GPIO.setwarnings(False) # Ignore some warnings
 GPIO.setmode(GPIO.BOARD)
@@ -134,7 +134,6 @@ print("CityXen Serial Bridge now active")
 counter=0
 
 if(encoding=="16B"):
-    print("ENCODING METHOD: "+args["encoding"]+" NOT IMPLEMENTED YET")
     while True:
         x=ser.readline()
         if(len(x)==16):
