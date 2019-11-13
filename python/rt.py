@@ -15,7 +15,7 @@ while True:
     bout=bin(random.randint(0,65535))[2:]
     bout=bout.zfill(16)
     swrite(bout,2)
-    spd=.3
+    spd=.01
     swrite("1000000000000000",spd)
     swrite("0100000000000000",spd)
     swrite("0010000000000000",spd)
