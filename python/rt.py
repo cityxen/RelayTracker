@@ -10,7 +10,7 @@ while True:
     bout=bout.zfill(16)
     ser.write(bout.encode())
     print(bout)
-    time.sleep(.05)
+    time.sleep(2)
 
     ser.write("1000000000000000".encode())
     time.sleep(.5)
