@@ -22,7 +22,7 @@ Started folder, looking at how to get it started
 
 Added rt.py which sends a continuous stream of 16 bit binary strings to the serial bridge for testing
 
-## Raspberry Pi Serial Bridge
+## Serial Bridge (Raspberry Pi)
 
 Python code for taking in serial input and converting it to GPIO up/down signals
 Added bridge.py
