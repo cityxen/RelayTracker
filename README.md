@@ -10,10 +10,9 @@ Here is a brief demo of what this looks like in operation during the early stage
 
 ![C64Version](https://github.com/cityxen/RelayTracker/blob/master/commodore64/screenshots/relay_tracker-image-actual-v2.0-1-tn.png)
 
-## Raspberry Pi Serial Bridge
+## Amiga Version
 
-Python code for taking in serial input and converting it to GPIO up/down signals
-Added bridge.py
+Started folder, working on some preliminary code to send 16 bit binary strings to the serial bridge
 
 ## Atari 800XL Version pre-alpha
 
@@ -22,3 +21,8 @@ Started folder, looking at how to get it started
 ## Python Version pre-alpha
 
 Added rt.py which sends a continuous stream of 16 bit binary strings to the serial bridge for testing
+
+## Raspberry Pi Serial Bridge
+
+Python code for taking in serial input and converting it to GPIO up/down signals
+Added bridge.py
