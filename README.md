@@ -21,4 +21,4 @@ Started folder, looking at how to get it started
 
 ## Python Version pre-alpha
 
-Started folder, looking at how to get it started
+Added rt.py which sends a continuous stream of 16 bit binary strings to the serial bridge for testing
