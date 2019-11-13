@@ -54,25 +54,30 @@
 # Pin 37 Relay 8
 #
 ##########################################################################################
-sb_version="1.0"
-print("CityXen Serial Bridge version %s" % (sb_version))
-print("pass -h for help")
+
 import RPi.GPIO as GPIO
 import time
 import serial
 import argparse
-ap=argparse.ArgumentParser()
-ap.add_argument("-s","--serial_device",required=False,help="Serial Device")
-ap.add_argument("-e","--encoding",required=False,help="Encoding Method")
-ap.add_argument("-b","--serial_baud",required=False,help="Serial Baud Rate")
-ap.add_argument("-t","--init_test",required=False,help="Test all relays on startup")
-args=vars(ap.parse_args())
 
+# Set up some variables
+sb_version    = "1.0"
 serial_device = "/dev/ttyAMA0"
 serial_baud   = "19200"
 encoding      = "DEFAULT"
 init_test     = False
+counter       = 0
 
+print("CityXen Serial Bridge version %s" % (sb_version))
+print("pass -h for help")
+
+# Parse arguments
+ap=argparse.ArgumentParser()
+ap.add_argument("-s","--serial_device",required=False,help="Serial Device")
+ap.add_argument("-e","--encoding",required=False,help="Encoding Method (Methods: DEFAULT or 16B)\nDEFAULT: 1-8 and q-i operate relays\n16B: 16 bit binary strings should be passed")
+ap.add_argument("-b","--serial_baud",required=False,help="Serial Baud Rate")
+ap.add_argument("-t","--init_test",required=False,help="Test all relays on startup")
+args=vars(ap.parse_args())
 if(args["serial_device"]):
     serial_device=args["serial_device"]
 if(args["serial_baud"]):
@@ -81,36 +86,37 @@ if(args["encoding"]):
     encoding    = args["encoding"]
 if(args["init_test"]):
     init_test   = True if (args["init_test"]=="1") else False
-
 print("Using "+serial_device+" at "+serial_baud+" baud and "+encoding+" encoding")
 
+# Set up serial device
 ser = serial.Serial(serial_device,serial_baud,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.001,rtscts=0)
-
-GPIO.setwarnings(False) # Ignore some warnings
-GPIO.setmode(GPIO.BOARD)
 
 # Set up a dictionary for GPIO pins used for the relay up/down states
 gp = {7:False,11:False,13:False,15:False,19:False,21:False,23:False,12:False,16:False,18:False,22:False,40:False,38:False,36:False,32:False,37:False}
 
+# Set up GPIO device
+GPIO.setwarnings(False) # Ignore some warnings
+GPIO.setmode(GPIO.BOARD)
 for i in gp:
     GPIO.setup(i, GPIO.OUT) # Set pins to out
 
-def set_gpio():
+# Define some functions
+def set_gpio(): # Set the GPIO pins from dict values
     global gp
     for i in gp:
         GPIO.output(i,gp[i])
 
-def all_on():
+def all_on(): # Turn all dict values to on
     global gp
     for i in gp:
         gp[i]=False
 
-def all_off():
+def all_off(): # Turn all dict values to off
     global gp
     for i in gp:
         gp[i]=True
 
-def test_sequence():
+def test_sequence(): # Turn on and off all dict values and then set the GPIO pins
     global gp
     for i in gp:
         gp[i]=False
@@ -119,26 +125,25 @@ def test_sequence():
         gp[i]=True
         set_gpio()
 
-
+# Do or do not, there is no try...
 if(init_test):
     print("Initialization Test")
-    # Do a quick system test
-    test_sequence()
+    test_sequence() # Do a quick system test
 
+# Turn off all GPIO pins
 all_off()
 set_gpio()
 
+# Print out a ready message
 ser.write(b'CityXen Serial Bridge now active\n\r')
 print("CityXen Serial Bridge now active")
 
-counter=0
-
+# Main program, check for encoding method then loop
 if(encoding=="16B"):
     while True:
         x=ser.readline()
         if(len(x)==16):
             print("IN STRLEN:"+str(len(x))+":"+x)
-            #for i in range(0,len(x)):
             gp[12]=False if x[0] =="1" else True
             gp[7] =False if x[1] =="1" else True
             gp[11]=False if x[2] =="1" else True
@@ -155,7 +160,6 @@ if(encoding=="16B"):
             gp[36]=False if x[13]=="1" else True
             gp[32]=False if x[14]=="1" else True
             gp[37]=False if x[15]=="1" else True
-
             set_gpio()
 
         counter=counter+1
