@@ -14,13 +14,17 @@ Here is a brief demo of what this looks like in operation during the early stage
 
 Started folder, working on some preliminary code to send 16 bit binary strings to the serial bridge
 
+## Python Version pre-alpha
+
+Added rt.py which sends a continuous stream of 16 bit binary strings to the serial bridge for testing
+
 ## Atari 800XL Version pre-alpha
 
 Started folder, looking at how to get it started
 
-## Python Version pre-alpha
+## TI994A Version pre-alpha
 
-Added rt.py which sends a continuous stream of 16 bit binary strings to the serial bridge for testing
+Started folder, looking at how to get it started
 
 ## Serial Bridge (Raspberry Pi)
 
