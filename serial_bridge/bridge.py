@@ -138,7 +138,7 @@ if(encoding=="16B"):
     while True:
         x=ser.readline()
         if(len(x)==16):
-            print("IN STRLEN:"+str(len(x)))
+            print("IN STRLEN:"+str(len(x))" ("+x+")")
             for i in range(0,len(x)):
                 gp[12]=False if x[0] =="1" else True
                 gp[7] =False if x[1] =="1" else True
