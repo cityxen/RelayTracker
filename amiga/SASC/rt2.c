@@ -50,7 +50,7 @@ if (SerialMP=CreateMsgPort())
                 SerialIO->IOSer.io_Command  = CMD_WRITE;
                 DoIO((struct IORequest *)SerialIO);     /* execute write */
 
-                Delay(1000);
+                Delay(100);
 
                 /* printf("Write failed.  Error - %ld\n",SerialIO->IOSer.io_Error); */
 
@@ -59,7 +59,7 @@ if (SerialMP=CreateMsgPort())
                 SerialIO->IOSer.io_Command  = CMD_WRITE;
                 DoIO((struct IORequest *)SerialIO);     /* execute write */
 
-                Delay(1000);
+                Delay(100);
 
             }
 
