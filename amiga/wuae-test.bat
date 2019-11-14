@@ -1,0 +1,1 @@
+start C:\Progra~1\WinUAE\winuae64.exe -f "C:\Users\Public\Documents\Amiga Files\WinUAE\Configurations\3.1.uae-500-dev-release.uae"

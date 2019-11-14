@@ -12,7 +12,8 @@ Here is a brief demo of what this looks like in operation during the early stage
 
 ## Amiga Version
 
-Started folder, working on some preliminary code to send 16 bit binary strings to the serial bridge
+Serial program made with SASC to send 16 bit binary strings to the serial bridge
+rt2.c
 
 ## Python Version pre-alpha
 

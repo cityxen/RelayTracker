@@ -1,0 +1,4 @@
+FROM LIB:c.o "rt2.o"
+TO "rt2"
+LIB LIB:sc.lib LIB:amiga.lib
+
