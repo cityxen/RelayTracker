@@ -4,7 +4,7 @@
 
 All commands now working, VIC-Rel support added
 
-This program allows you to program and playback a sequence of states for an 8 Channel relay board similar to a VIC-Rel for the Commodore 64. It may even work with a VIC-Rel, but can't test it. If someone has a VIC-Rel and would like to test it, please let us know if it works. The schematic for each device will be in the folder for that machine.
+This program allows you to program and playback a sequence of states for an 8 Channel relay board similar to a VIC-Rel for the Commodore 64. It does work with the VIC-Rel (Thanks to Saj Tron for testing it). The schematic for each device will be in the folder for that machine.
 
 Here is a brief demo of what this looks like in operation during the early stages of development: https://www.youtube.com/watch?v=qtZTxJKP-fk
 
