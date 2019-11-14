@@ -46,20 +46,20 @@ if (SerialMP=CreateMsgPort())
             while(1) {
                 /* device opened, write NULL-terminated string */
                 SerialIO->IOSer.io_Length   = -1;
-                SerialIO->IOSer.io_Data     = (APTR)"1100110011001100";
+                SerialIO->IOSer.io_Data     = (APTR)"1100110011001100\n";
                 SerialIO->IOSer.io_Command  = CMD_WRITE;
                 DoIO((struct IORequest *)SerialIO);     /* execute write */
 
-                Delay(100);
+                Delay(20);
 
                 /* printf("Write failed.  Error - %ld\n",SerialIO->IOSer.io_Error); */
 
                 SerialIO->IOSer.io_Length   = -1;
-                SerialIO->IOSer.io_Data     = (APTR)"0011001100110011";
+                SerialIO->IOSer.io_Data     = (APTR)"0011001100110011\n";
                 SerialIO->IOSer.io_Command  = CMD_WRITE;
                 DoIO((struct IORequest *)SerialIO);     /* execute write */
 
-                Delay(100);
+                Delay(20);
 
             }
 

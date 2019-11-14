@@ -89,7 +89,7 @@ if(args["init_test"]):
 print("Using "+serial_device+" at "+serial_baud+" baud and "+encoding+" encoding")
 
 # Set up serial device
-ser = serial.Serial(serial_device,serial_baud,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=.001,rtscts=0)
+ser = serial.Serial(serial_device,serial_baud,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=None,rtscts=0)
 
 # Set up a dictionary for GPIO pins used for the relay up/down states
 gp = {7:False,11:False,13:False,15:False,19:False,21:False,23:False,12:False,16:False,18:False,22:False,40:False,38:False,36:False,32:False,37:False}
@@ -142,8 +142,11 @@ print("CityXen Serial Bridge now active")
 if(encoding=="16B"):
     while True:
         x=ser.readline()
-        if(len(x)==16):
+
+        if(len(x)):
             print("IN STRLEN:"+str(len(x))+":"+x)
+
+        if((len(x)>16)and(len(x)<18)):
             gp[12]=False if x[0] =="1" else True
             gp[7] =False if x[1] =="1" else True
             gp[11]=False if x[2] =="1" else True
@@ -164,10 +167,9 @@ if(encoding=="16B"):
 
         counter=counter+1
         if counter > 1000:
-            ser.write(b'BURmP\n\r')
-            print("BURmP")
+            ser.write(b'RT BURmP\n\r')
+            print("RT BURmP")
             counter=0
-
 
 # Default Encoding method (1-8 and q-i)
 if(encoding=="DEFAULT"):
