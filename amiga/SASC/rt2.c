@@ -1,13 +1,9 @@
 /*
- * Simple_Serial.c
- *
- * This is an example of using the serial device.  First, we will attempt
- * to create a message port with CreateMsgPort().  Next, we will attempt
- * to create the IORequest with CreateExtIO().  Then, we will attempt to
- * open the serial device with OpenDevice().  If successful, we will write
- * a NULL-terminated string to it and reverse our steps.  If we encounter
- * an error at any time, we will gracefully exit.
- *
+ * CityXen Amiga Serial Relay Tracker Program
+ * 
+ * Writes 16 bit binary strings over serial port for use
+ * with the raspberry pi serial bridge
+ * 
  * Compile with SAS C 5.10  lc -b1 -cfistq -v -y -L
  *
  * Run from CLI only
