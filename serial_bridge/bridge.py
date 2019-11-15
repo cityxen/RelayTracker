@@ -92,7 +92,7 @@ print("Using "+serial_device+" at "+serial_baud+" baud and "+encoding+" encoding
 ser = serial.Serial(serial_device,serial_baud,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,bytesize=serial.EIGHTBITS,xonxoff=0,timeout=None,rtscts=0)
 
 # Set up a dictionary for GPIO pins used for the relay up/down states
-gp = {7:False,11:False,13:False,15:False,19:False,21:False,23:False,12:False,16:False,18:False,22:False,40:False,38:False,36:False,32:False,37:False}
+gp = {12:False,7:False,11:False,13:False,15:False,19:False,21:False,23:False,16:False,18:False,22:False,40:False,38:False,36:False,32:False,37:False}
 
 # Set up GPIO device
 GPIO.setwarnings(False) # Ignore some warnings
