@@ -144,7 +144,7 @@ if(encoding=="16B"):
         x=ser.readline()
 
         if(len(x)):
-            print("IN STRLEN:"+str(len(x))+":"+x)
+            print("IN STRLEN:"+str(len(x))+":"+x.rstrip("\n\r"))
 
         if(len(x)>16):
             gp[12]=False if x[1] =="1" else True
@@ -167,8 +167,8 @@ if(encoding=="16B"):
 
         counter=counter+1
         if counter > 1000:
-            ser.write(b'RT BURmP\n\r')
-            print("RT BURmP")
+            ser.write(b'16B BURmP\n\r')
+            print("16B BURmP")
             counter=0
 
 # Default Encoding method (1-8 and q-i)
@@ -277,8 +277,8 @@ if(encoding=="DEFAULT"):
 
         counter=counter+1
         if counter > 1000:
-            ser.write(b'BURmP\n\r')
-            print("BURmP")
+            ser.write(b'DEFAULT BURmP\n\r')
+            print("DEFAULT BURmP")
             counter=0
 
 GPIO.cleanup()
