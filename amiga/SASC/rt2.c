@@ -25,7 +25,7 @@ struct MsgPort *SerialMP;       /* pointer to our message port */
 struct IOExtSer *SerialIO;      /* pointer to our IORequest */
 
 void writeser(char * outstr) {
-    printf("%s",outstr);
+    /* printf("%s",outstr); taken out because it causes delay */
     SerialIO->IOSer.io_Length   = -1;
     SerialIO->IOSer.io_Data     = (APTR)outstr;
     SerialIO->IOSer.io_Command  = CMD_WRITE;
