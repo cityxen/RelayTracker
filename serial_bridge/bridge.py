@@ -146,7 +146,7 @@ if(encoding=="16B"):
         if(len(x)):
             print("IN STRLEN:"+str(len(x))+":"+x)
 
-        if(len(x)>16):
+        if(len(x)>15):
             gp[12]=False if x[0] =="1" else True
             gp[7] =False if x[1] =="1" else True
             gp[11]=False if x[2] =="1" else True
