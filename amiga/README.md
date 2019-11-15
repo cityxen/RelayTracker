@@ -1,3 +1,9 @@
 # Relay Tracker - Amiga Version
 
-Adding folder and some source
+rt2.c
+
+CityXen Relay Tracker for the Amiga
+===================================
+USAGE: rt2 <SPEED> [ITERATIONS] [FILE]
+
+Note: ITERATIONS is ignored if FILE is passed
