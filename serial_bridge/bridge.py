@@ -141,7 +141,7 @@ print("CityXen Serial Bridge now active")
 # Main program, check for encoding method then loop
 if(encoding=="16B"):
     while True:
-        x=ser.readline().lstrip('\x00').rstrip("\n\r")
+        x=ser.readline().lstrip('\x00').rstrip("\x00\n\r")
 
         if(len(x)):
             print("IN STRLEN:"+str(len(x))+":"+x)
