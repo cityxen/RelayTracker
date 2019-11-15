@@ -156,7 +156,7 @@ if(encoding=="16B"):
             gp[21]=False if x[7] =="1" else True
             gp[23]=False if x[8] =="1" else True
             gp[16]=False if x[9] =="1" else True
-            gp[18]=False if x[10] =="1" else True
+            gp[18]=False if x[10]=="1" else True
             gp[22]=False if x[11]=="1" else True
             gp[40]=False if x[12]=="1" else True
             gp[38]=False if x[13]=="1" else True
