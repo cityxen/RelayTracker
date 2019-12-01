@@ -1,6 +1,8 @@
 # Relay Tracker - Commodore 64 Version
 
-Version: 2.0 by Deadline
+Version: 2.1 by Deadline
+
+v2.1 fixes vicrel mode corruption bug on load
 
 This program will set the user port output for relay boards such as the VIC-Rel, or 8 channel relay boards.
 

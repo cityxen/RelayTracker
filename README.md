@@ -1,8 +1,8 @@
 # Relay Tracker
 
-## Commodore 64 Version 2.0
+## Commodore 64 Version 2.1
 
-All commands now working, VIC-Rel support added
+All commands now working, VIC-Rel support added. v2.1 fixes vicrel mode corruption bug on load.
 
 This program allows you to program and playback a sequence of states for an 8 Channel relay board similar to a VIC-Rel for the Commodore 64. It does work with the VIC-Rel (Thanks to Saj Tron for testing it). The schematic for each device will be in the folder for that machine.
 
