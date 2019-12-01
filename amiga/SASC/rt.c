@@ -5,6 +5,8 @@
  * Compile with SAS C 5.10  lc -b1 -cfistq -v -y -L
  * Run from CLI only                                         */
 
+#define VERSION "1.0a"
+
 #include <exec/types.h>
 #include <exec/memory.h>
 #include <exec/io.h>
@@ -41,11 +43,11 @@ int main(int nargs, char** pargs) { /* main(void) */
     speed=0;
     iterations=0;
     Execute("clear",0,0);
-    printf("CityXen Relay Tracker for the Amiga\n");
-    printf("===================================\n");
+    printf("CityXen Relay Tracker %s for the Amiga\n",VERSION);
+    printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
     if(nargs>1) { speed=atoi(pargs[1]); }
     if(nargs<1 | speed == 0) {
-        printf("USAGE: rt2 <SPEED> [ITERATIONS] [FILE]\n");
+        printf("USAGE: rt <SPEED> [ITERATIONS] [FILE]\n");
         Printf("Must supply SPEED\n");
         exit(0);
     }
