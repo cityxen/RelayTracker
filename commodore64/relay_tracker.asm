@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker
 //
-// Version: 2.0
+// Version: 2.1
 // Author: Deadline
 //
 // 2019 CityXen
@@ -1760,6 +1760,9 @@ cfn_labl5:
 
 ////////////////////////////////////////////////////
 // Save File
+save_file_are_you_sure:
+    // Add are you sure prompt here
+
 save_file:
     ClearScreen(BLACK)
     ldx #$00
@@ -1865,6 +1868,13 @@ ld_labl22:
 ld_out:
     jsr KERNAL_WAIT_KEY
     beq ld_out
+    clc
+    lda vic_rel_mode // Check to make sure vic_rel_mode is within bounds
+    cmp #$02
+    bcc ld_exit
+    lda #$00
+    sta vic_rel_mode
+ld_exit:
     rts
 
 load_loading:
