@@ -1,6 +1,5 @@
 # Relay Tracker
 
---------------------------------------------------------------------------------
 ## Working Versions
 
 ### Commodore 64 Version 2.1
@@ -24,8 +23,6 @@ The Amiga version of the RelayTracker works with the CLICK-A-TRON
 
 Will work with any computer that has a RS-232 interface. Python code for taking serial input and converting it to GPIO up/down signals.
 Added bridge.py
-
---------------------------------------------------------------------------------
 
 ## Unfinished Versions
 
