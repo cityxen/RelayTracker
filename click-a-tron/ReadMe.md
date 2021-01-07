@@ -3,7 +3,6 @@
 
 ![CLICK-A-TRON-1](https://raw.githubusercontent.com/cityxen/RelayTracker/master/click-a-tron/images/click-a-tron-1.jpg)
 ![CLICK-A-TRON-2](https://raw.githubusercontent.com/cityxen/RelayTracker/master/click-a-tron/images/click-a-tron-2.jpg)
-![CLICK-A-TRON-3](https://raw.githubusercontent.com/cityxen/RelayTracker/master/click-a-tron/images/click-a-tron-3.jpg)
 
 This is a python script that runs when the Raspberry Pi boots.
 
