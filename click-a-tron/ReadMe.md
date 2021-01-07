@@ -10,3 +10,11 @@ Example:
 0000000000000001
 ```
 
+Usage:
+```
+python bridge.py -b 9600 -t 1 -e 16B
+python bridge.py -b 19200 -t 1 -e 16B
+```
+
+
+
