@@ -14,7 +14,8 @@ Here is a brief demo of what this looks like in operation during the early stage
 
 Serial program made with SASC to send 16 bit binary strings to the serial bridge.
 Will now read in a text file of 16 bit binary strings and transfer to serial.
-rt2.c
+rt.c
+The Amiga version of the RelayTracker works with the CLICK-A-TRON
 
 ## Python Version pre-alpha
 
@@ -28,7 +29,8 @@ Started folder, looking at how to get it started
 
 Started folder, looking at how to get it started
 
-## Serial Bridge (Raspberry Pi)
+## CLICK-A-TRON (Raspberry Pi Serial Bridge)
 
-Python code for taking in serial input and converting it to GPIO up/down signals
+Will work with any computer that has a RS-232 interface. Python code for taking serial input and converting it to GPIO up/down signals.
 Added bridge.py
+
