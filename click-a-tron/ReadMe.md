@@ -1,4 +1,4 @@
-# Raspberry Pi Serial Bridge
+# CLICK-A-TRON (Raspberry Pi Serial Bridge)
 
 This is a python script that runs when the Raspberry Pi boots.
 
