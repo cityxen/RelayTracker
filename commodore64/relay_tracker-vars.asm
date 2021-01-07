@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker (VARS)
 //
-// Version: 2.0
+// Version: 2.1
 // Author: Deadline
 //
 // 2019 CityXen
@@ -65,6 +65,11 @@
 
 // command = xx------
 // data    = --xxxxxx
+// current commands:
+// ----- (Empty)
+// SPEED (00-1f)
+// STOP  (End playback)
+// FLASH (00-1f)
 
 // Joystick Control Mode
 .var joystick_control_mode   = $41fb
