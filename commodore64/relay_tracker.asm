@@ -28,6 +28,7 @@
 *=$2ff0 "constants"
 #import "../../Commodore64_Programming/include/Constants.asm"
 #import "../../Commodore64_Programming/include/Macros.asm"
+#import "../../Commodore64_Programming/include/PrintHex.asm"
 #import "relay_tracker-vars.asm"
 
 *=$3000 "customfont"
