@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker (VARS)
 //
-// Version: 2.1
+// Version: 2.2
 // Author: Deadline
 //
 // 2019 CityXen
@@ -10,8 +10,8 @@
 // zero page vars
 .const zp_pointer_lo         = $fb
 .const zp_pointer_hi         = $fc
-.const zp_temp               = $fd
-.const zp_temp2              = $fa
+//.const zp_temp               = $fd
+//.const zp_temp2              = $fa
 
 // disk vars
 .var filename                = $4b8 // 16 bytes

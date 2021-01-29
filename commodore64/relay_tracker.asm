@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker
 //
-// Version: 2.1
+// Version: 2.2
 // Author: Deadline
 //
 // 2019 CityXen
@@ -25,10 +25,10 @@
 .file [name="relaytracker.prg",segments="Code"]
 .disk [filename="relaytracker.d64", name="RELAYTRACKER", id="CXN19" ] { [name="RELAYTRACKER", type="prg",  segments="Code"] }
 
-*=$2ff0 "constants"
+*=$2ef0 "constants"
 #import "../../Commodore64_Programming/include/Constants.asm"
 #import "../../Commodore64_Programming/include/Macros.asm"
-#import "../../Commodore64_Programming/include/PrintHex.asm"
+#import "../../Commodore64_Programming/include/PrintSubRoutines.asm"
 #import "relay_tracker-vars.asm"
 
 *=$3000 "customfont"
@@ -42,6 +42,9 @@
     BasicUpstart($080d)
 
 *=$080d "Program"
+
+    lda #$01
+    sta 54
 
     sei
     lda #<irq
@@ -725,8 +728,10 @@ init_fn_loop:
     jsr convert_filename
     ldx filename_length
     stx filename_cursor
-    lda #track_block_cursor_init // Set Track block cursor to 0
-    sta track_block_cursor
+    ldx #track_block_cursor_init // Set Track block cursor to 0
+    stx track_block_cursor
+    txa
+    sta track_block,x
     lda #pattern_cursor_init    // Set Pattern cursor to 0
     sta pattern_cursor
     lda #$00
@@ -1485,6 +1490,8 @@ rtb_skip_top:
     ldx track_block_cursor
     lda track_block,x
     PrintHex(4,4) // print pattern in track area
+    ldx track_block_cursor
+    lda track_block,x
     PrintHex(16,3) // print pattern in pattern area
 // track +1
     ldx track_block_cursor
@@ -2003,6 +2010,7 @@ draw_current_relays:
     lda (zp_pointer_lo,x) // Load the value from memory
     DrawRelays(7,17)      // Draw current relay at top right of screen
     DrawRelays(7,1)      // Draw current relay at current in track pattern cursor position
+    lda (zp_pointer_lo,x) // Load the value from memory
     PrintHex(18,17)       // Print hex value of current relay in track pattern cursor position
 
     lda vic_rel_mode
