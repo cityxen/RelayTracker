@@ -2,8 +2,6 @@
 
 # Relay Tracker
 
-## Working Versions
-
 ### Commodore 64 Version 2.1
 
 All commands now working, VIC-Rel support added. v2.1 fixes vicrel mode corruption bug on load.
@@ -19,25 +17,8 @@ Here is a brief demo of what this looks like in operation during the early stage
 Serial program made with SASC to send 16 bit binary strings to the serial bridge.
 Will now read in a text file of 16 bit binary strings and transfer to serial.
 rt.c
-The Amiga version of the RelayTracker works with the CLICK-A-TRON
+The Amiga version of the RelayTracker works with the https://github.com/cityxen/HACKME/Click-A-Tron
 
-### CLICK-A-TRON (Raspberry Pi Serial Bridge)
+### Python Version
 
-Will work with any computer that has a RS-232 interface. Python code for taking serial input and converting it to GPIO up/down signals.
-Added bridge.py
-
-## Unfinished Versions
-
-### Python Version pre-alpha
-
-Added rt.py which sends a continuous stream of 16 bit binary strings to the serial bridge for testing
-
-### Atari 800XL Version pre-alpha
-
-Started folder, looking at how to get it started
-
-### TI994A Version pre-alpha
-
-Started folder, looking at how to get it started
-
-
+Sends test patterns for now
