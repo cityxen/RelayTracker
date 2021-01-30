@@ -20,7 +20,7 @@ Here is a brief demo of what this looks like in operation during the early stage
 Serial program made with SASC to send 16 bit binary strings to the serial bridge.
 Will now read in a text file of 16 bit binary strings and transfer to serial.
 rt.c
-The Amiga version of the RelayTracker works with the https://github.com/cityxen/HACKME/Click-A-Tron
+The Amiga version of the RelayTracker works with the Click-A-Tron: https://github.com/cityxen/HACKME/tree/main/Click-A-Tron
 
 ### Python Version
 
