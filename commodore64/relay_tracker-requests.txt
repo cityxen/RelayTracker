@@ -1,0 +1,37 @@
+Feature requests for Relay Tracker:
+
+- Paddle/potentiometer for speed and position
+
+- Joystick control mode for:
+    - home
+    - up
+    - down
+    - step
+
+- Commands:
+    - pulse/flash for a step with rate as ratio of speed
+    - fraction of a step, eg 25%/50%/75%/100%
+    - jump to step
+
+- At higher speeds a bit more spread for more gradual setting
+
+- A way to set pattern length easily
+
+- Fill options?
+    - fill channel 1 with a on event every 3rd step
+    - fill random, etc.
+
+- Presets?
+    - “cylon”
+    - “bounce”
+    - “zigzag”
+    - “rain”
+    - etc
+
+- Option to have pins active high or active low, can be done already by selecting vic rel, but only 6 are shown,
+    it would be good to have all 8 as a option to set high or low,
+    this would allow for example transistor or logic pcbs to be used as well. 
+
+- A shuffle setting, where every other pulse can be pushed forward or back in time
+    slightly for a swing feel (can look cool with lights too)
+

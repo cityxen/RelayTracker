@@ -1,10 +1,7 @@
 //////////////////////////////////////////////////////////////////////////
 // Relay Tracker (VARS)
-//
-// Version: 2.2
 // Author: Deadline
-//
-// 2019 CityXen
+// 2019-2021 CityXen
 //////////////////////////////////////////////////////////////////////////
 
 // zero page vars
@@ -12,6 +9,32 @@
 .const zp_pointer_hi         = $fc
 //.const zp_temp               = $fd
 //.const zp_temp2              = $fa
+
+.const zp_block1             = $03
+.const zp_block1_lo          = $03
+.const zp_block1_hi          = $04
+
+.const zp_block2             = $92
+.const zp_block2_lo          = $92
+.const zp_block2_hi          = $93
+
+.const zp_block3             = $a6
+.const zp_block3_lo          = $a6
+.const zp_block3_hi          = $a7
+
+.const zp_block4             = $a8
+.const zp_block4_lo          = $a8
+.const zp_block4_hi          = $a9
+
+.const zp_block_cmd          = $94
+.const zp_block_cmd_lo       = $94
+.const zp_block_cmd_hi       = $95
+
+
+.const gpio_off              = 94
+.const gpio_off_color        = DARK_GREY
+.const gpio_on               = 90
+.const gpio_on_color         = RED
 
 // disk vars
 .var filename                = $4b8 // 16 bytes

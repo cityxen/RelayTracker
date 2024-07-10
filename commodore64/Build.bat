@@ -1,2 +1,4 @@
-copy Kickass.cfg E:\retro-dev-tools\dev-tools\commodore64\KickAssembler\Kickass.cfg
-java -jar E:\retro-dev-tools\dev-tools\commodore64\KickAssembler\KickAss.jar relay_tracker.asm
+@echo off
+echo Build Script: Building %1
+start /b genkickass-script.bat -t C64 -o prg_files -m true -s true -l "RETRO_DEV_LIB"
+KickAss.bat relay_tracker.asm
