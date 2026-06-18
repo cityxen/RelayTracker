@@ -23,9 +23,8 @@
 .disk [filename="relaytracker.d64", name="RELAYTRACKER", id="CXN19" ] { [name="RELAYTRACKER", type="prg",  segments="Code"] }
 
 *=$2f52 "constants"
-#import "../../Commodore64_Programming/include/Constants.asm"
-#import "../../Commodore64_Programming/include/Macros.asm"
-#import "../../Commodore64_Programming/include/PrintSubRoutines.asm"
+#import "Constants.asm"
+#import "Macros.asm"
 #import "relay_tracker-vars.asm"
 
 *=$3000 "customfont"
@@ -36,9 +35,13 @@
 //////////////////////////////////////////////////////////
 // START OF PROGRAM
 *=$0801 "BASIC"
-    BasicUpstart($080d)
+    BasicUpstart(start)
 
-*=$080d "Program"
+#import "sys.il.asm"
+#import "print.il.asm"
+
+*=$0af0 "Program"
+start: 
 
     lda #$01
     sta 54
@@ -585,7 +588,7 @@ cc_2:
 
     // lda (zp_pointer_lo,x)
     // and #$c0
-    // PrintHex(34,7)
+    // PrintHexAt(34,7)
 
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -749,6 +752,7 @@ init_fn_loop:
     rts
 
 initial_filename:
+.encoding "screencode_mixed"
 .text "filename.rtd"
 .byte 0,0,0,0
 
@@ -776,10 +780,10 @@ clrloop:
     txa
     pha
     lda zp_pointer_hi
-    PrintHex(0,0)
+    PrintHexAt(0,0)
     sta BACKGROUND_COLOR
     lda zp_pointer_lo
-    PrintHex(2,0)
+    PrintHexAt(2,0)
     sta BORDER_COLOR
     pla
     tax
@@ -828,16 +832,16 @@ confirm_text:
 // Draw Playback Status
 draw_playback_status:
     lda playback_speed
-    PrintHex(24,1) // draw playback speed
+    PrintHexAt(24,1) // draw playback speed
     ldx playback_playing
     lda playback_text,x
     sta SCREEN_RAM+16+1*40 // draw playback_playing
     lda playback_pos_track
-    PrintHex(17,1) // draw track pos
+    PrintHexAt(17,1) // draw track pos
     lda playback_pos_pattern
-    PrintHex(19,1) // draw pattern pos
+    PrintHexAt(19,1) // draw pattern pos
     lda playback_pos_pattern_c
-    PrintHex(21,1) // draw pattern cursor
+    PrintHexAt(21,1) // draw pattern cursor
     rts
 
 playback_text:
@@ -1175,7 +1179,7 @@ rp_loop4:
     ror
     ror
     ror
-    // PrintHex(38,24)
+    // PrintHexAt(38,24)
     sta zp_temp
     ldx #$00
 dc_jmp3:
@@ -1212,7 +1216,7 @@ command_table:
 // Draw Command Data Macro
 .macro DrawCommandData(xpos,ypos) {
     and #$3f
-    PrintHex(xpos,ypos)
+    PrintHexAt(xpos,ypos)
 }
 
 ////////////////////////////////////////////////////
@@ -1236,11 +1240,11 @@ rp_v1:
     jmp rp_v2
 rp_v1_2:
     sta zp_pointer_lo
-    PrintHex(2,11)
+    PrintHexAt(2,11)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,11)
-    PrintHex(18,11)
+    PrintHexAt(18,11)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1258,11 +1262,11 @@ rp_v2:
     jmp rp_v3
 rp_v2_2:
     sta zp_pointer_lo
-    PrintHex(2,12)
+    PrintHexAt(2,12)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,12)
-    PrintHex(18,12)
+    PrintHexAt(18,12)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1280,11 +1284,11 @@ rp_v3:
     jmp rp_v4
 rp_v3_2:
     sta zp_pointer_lo
-    PrintHex(2,13)
+    PrintHexAt(2,13)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,13)
-    PrintHex(18,13)
+    PrintHexAt(18,13)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1302,11 +1306,11 @@ rp_v4:
     jmp rp_v5
 rp_v4_2:
     sta zp_pointer_lo
-    PrintHex(2,14)
+    PrintHexAt(2,14)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,14)
-    PrintHex(18,14)
+    PrintHexAt(18,14)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1324,11 +1328,11 @@ rp_v5:
     jmp rp_v6
 rp_v5_2:
     sta zp_pointer_lo
-    PrintHex(2,15)
+    PrintHexAt(2,15)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,15)
-    PrintHex(18,15)
+    PrintHexAt(18,15)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1346,11 +1350,11 @@ rp_v6:
     jmp rp_v7
 rp_v6_2:
     sta zp_pointer_lo
-    PrintHex(2,16)
+    PrintHexAt(2,16)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,16)
-    PrintHex(18,16)
+    PrintHexAt(18,16)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1362,11 +1366,11 @@ rp_v6_2:
 rp_v7:
     lda pattern_cursor
     sta zp_pointer_lo
-    PrintHex(2,17)
+    PrintHexAt(2,17)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,17)
-    PrintHex(18,17)
+    PrintHexAt(18,17)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1384,11 +1388,11 @@ rp_v8:
     jmp rp_v9
 rp_v8_2:
     sta zp_pointer_lo
-    PrintHex(2,18)
+    PrintHexAt(2,18)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,18)
-    PrintHex(18,18)
+    PrintHexAt(18,18)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1406,11 +1410,11 @@ rp_v9:
     jmp rp_v10
 rp_v9_2:
     sta zp_pointer_lo
-    PrintHex(2,19)
+    PrintHexAt(2,19)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,19)
-    PrintHex(18,19)
+    PrintHexAt(18,19)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1428,11 +1432,11 @@ rp_v10:
     jmp rp_v11
 rp_v10_2:
     sta zp_pointer_lo
-    PrintHex(2,20)
+    PrintHexAt(2,20)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,20)
-    PrintHex(18,20)
+    PrintHexAt(18,20)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1450,11 +1454,11 @@ rp_v11:
     jmp rp_v12
 rp_v11_2:
     sta zp_pointer_lo
-    PrintHex(2,21)
+    PrintHexAt(2,21)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,21)
-    PrintHex(18,21)
+    PrintHexAt(18,21)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1472,11 +1476,11 @@ rp_v12:
     jmp rp_v13
 rp_v12_2:
     sta zp_pointer_lo
-    PrintHex(2,22)
+    PrintHexAt(2,22)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,22)
-    PrintHex(18,22)
+    PrintHexAt(18,22)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1494,11 +1498,11 @@ rp_v13:
     jmp rp_v14
 rp_v13_2:
     sta zp_pointer_lo
-    PrintHex(2,23)
+    PrintHexAt(2,23)
     ldx #$00
     lda (zp_pointer_lo,x)
     DrawRelays(7,23)
-    PrintHex(18,23)
+    PrintHexAt(18,23)
     inc zp_pointer_hi
     ldx #$00
     lda (zp_pointer_lo,x)
@@ -1530,23 +1534,23 @@ rtb_loop1:
     lda #58 // put :
     sta SCREEN_RAM+3+3*40
     txa
-    PrintHex(1,3) // print track -1
+    PrintHexAt(1,3) // print track -1
     ldx track_block_cursor
     dex
     lda track_block,x
-    PrintHex(4,3) // print pattern of track -1
+    PrintHexAt(4,3) // print pattern of track -1
 rtb_skip_top:
 // track 0
     lda #58 // put :
     sta SCREEN_RAM+3+4*40
     lda track_block_cursor
-    PrintHex(1,4) // print track
+    PrintHexAt(1,4) // print track
     ldx track_block_cursor
     lda track_block,x
-    PrintHex(4,4) // print pattern in track area
+    PrintHexAt(4,4) // print pattern in track area
     ldx track_block_cursor
     lda track_block,x
-    PrintHex(16,3) // print pattern in pattern area
+    PrintHexAt(16,3) // print pattern in pattern area
 // track +1
     ldx track_block_cursor
     cpx track_block_length
@@ -1556,11 +1560,11 @@ rtb_skip_top:
     ldx track_block_cursor
     inx
     txa
-    PrintHex(1,5) // print track +1
+    PrintHexAt(1,5) // print track +1
     ldx track_block_cursor
     inx
     lda track_block,x
-    PrintHex(4,5) // print pattern of track +1
+    PrintHexAt(4,5) // print pattern of track +1
 rtb_skip_bot:
     clc
     ldx #$00 // reverse the track cursor location
@@ -1585,7 +1589,7 @@ draw_current_relays:
     DrawRelays(7,17)      // Draw current relay at top right of screen
     DrawRelays(7,1)      // Draw current relay at current in track pattern cursor position
     lda (zp_pointer_lo,x) // Load the value from memory
-    PrintHex(18,17)       // Print hex value of current relay in track pattern cursor position
+    PrintHexAt(18,17)       // Print hex value of current relay in track pattern cursor position
 
     lda vic_rel_mode
     cmp #$00
@@ -1846,10 +1850,18 @@ cpb_1:
     jmp cpb_1
 cpb_2:
     lda zp_pointer_lo
-    PrintHex(38,1) // draw memory locations
+    PrintHexAt(38,1) // draw memory locations
     lda zp_pointer_hi
-    PrintHex(36,1)
+    PrintHexAt(36,1)
     rts
+
+.macro PrintHexAt(hx,hy) {
+    sta a_reg
+    PrintChr(KEY_WHITE)
+    PrintPlot(hx,hy)
+    lda a_reg
+    PrintHex()
+}
 
 ///////////////////////////////////////////////////
 
